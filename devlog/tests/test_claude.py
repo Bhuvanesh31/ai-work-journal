@@ -57,6 +57,9 @@ class ClaudeParserTest(unittest.TestCase):
         self.assertEqual(d17["meta"]["tool_use_count"], 2)
         self.assertEqual(d17["meta"]["tool_breakdown"], {"Bash": 1, "Edit": 1})
         self.assertEqual(d17["meta"]["model"], "claude-opus-4-7")
+        self.assertEqual(d17["meta"]["duration_min"], 3)  # 09:00 -> 09:03
+        self.assertEqual(d17["meta"]["first_ts"], "2026-06-17T09:00:00Z")
+        self.assertEqual(d17["meta"]["last_ts"], "2026-06-17T09:03:00Z")
         self.assertEqual(d17["raw_ref"], "archive/claude/sess-1.jsonl")
 
     def test_skips_malformed_lines(self):
@@ -64,6 +67,16 @@ class ClaudeParserTest(unittest.TestCase):
             f.write('{"type":"user","timestamp":"2026-06-17T09:00:00Z",'
                     '"message":{"role":"user","content":"ok"}}\n')
             f.write('{ this is not json\n')  # partial/truncated last line
+        res = claude.parse_claude_session(self.path)
+        self.assertEqual(res.skipped, 1)
+        self.assertEqual(len(res.events), 1)
+
+    def test_skips_encoding_corrupt_lines(self):
+        # Write one valid JSON line and one with invalid UTF-8 bytes
+        with open(self.path, "wb") as f:
+            f.write(b'{"type":"user","timestamp":"2026-06-17T09:00:00Z",'
+                    b'"message":{"role":"user","content":"ok"}}\n')
+            f.write(b'{"x": "\xff\xfe"}\n')  # invalid UTF-8 bytes
         res = claude.parse_claude_session(self.path)
         self.assertEqual(res.skipped, 1)
         self.assertEqual(len(res.events), 1)

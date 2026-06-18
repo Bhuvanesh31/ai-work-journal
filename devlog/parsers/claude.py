@@ -36,9 +36,14 @@ def parse_claude_session(path, session_id: str | None = None) -> events.ParseRes
     session_ai_title = None
     skipped = 0
 
-    with open(path, "r", encoding="utf-8", errors="replace") as f:
-        for raw in f:
-            raw = raw.strip()
+    # Read file as bytes and decode line-by-line to catch encoding errors per line
+    with open(path, "rb") as f:
+        for line_bytes in f:
+            try:
+                raw = line_bytes.decode("utf-8").strip()
+            except UnicodeDecodeError:
+                skipped += 1
+                continue
             if not raw:
                 continue
             try:
@@ -67,7 +72,7 @@ def parse_claude_session(path, session_id: str | None = None) -> events.ParseRes
             if events.parse_ts(ts) > events.parse_ts(d["last_ts"]):
                 d["last_ts"] = ts
             if rec.get("cwd"):
-                d["cwd"] = rec["cwd"]
+                d["cwd"] = rec["cwd"]  # last cwd seen on the day wins -> determines project
             if rec.get("gitBranch"):
                 d["branch"] = rec["gitBranch"]
 
