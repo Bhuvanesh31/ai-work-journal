@@ -25,6 +25,8 @@ def main(argv=None) -> int:
     pr.add_argument("--date", default="today", help="'today' or YYYY-MM-DD")
     pr.add_argument("--week", action="store_true", help="7-day window ending on --date")
     pr.add_argument("--ai", action="store_true", help="append an AI narrative")
+    pr.add_argument("--detailed", action="store_true",
+                    help="add per-project breakdown with stats and optional AI explanation")
     pr.add_argument("--engine", default="claude", help="claude | codex")
 
     sub.add_parser("rebuild", help="rebuild journal.db from events.jsonl")
@@ -51,7 +53,8 @@ def main(argv=None) -> int:
         if args.ai:
             from . import engine as engine_mod
             engine_fn = lambda prompt: engine_mod.run_engine(prompt, name=args.engine)
-        md = report_mod.daily_report(target, paths, engine_fn=engine_fn, week=args.week)
+        md = report_mod.daily_report(target, paths, engine_fn=engine_fn, week=args.week,
+                                     detailed=args.detailed)
         out_file = paths.reports / "daily" / f"{target}.md"
         out_file.parent.mkdir(parents=True, exist_ok=True)
         out_file.write_text(md, encoding="utf-8")

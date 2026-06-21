@@ -57,6 +57,35 @@ class ReportTest(unittest.TestCase):
         self.assertTrue(saved_path.exists())
         self.assertEqual(saved_path.read_text(encoding="utf-8"), md)
 
+    def test_detailed_produces_per_project_sections(self):
+        md = report.daily_report("2026-06-17", self.paths, detailed=True)
+        self.assertIn("## proj-one", md)
+        self.assertIn("## proj-two", md)
+
+    def test_detailed_per_project_stats_are_scoped(self):
+        md = report.daily_report("2026-06-17", self.paths, detailed=True)
+        proj_one_block = md[md.index("## proj-one"):]
+        self.assertIn("Sessions: 1", proj_one_block)
+        self.assertIn("Bash: 3", proj_one_block)
+
+    def test_detailed_ai_called_per_project(self):
+        calls = []
+        def capturing_engine(prompt):
+            calls.append(prompt)
+            return "OK"
+        md = report.daily_report("2026-06-17", self.paths,
+                                 engine_fn=capturing_engine, detailed=True)
+        # one top-level call + one per project
+        self.assertEqual(len(calls), 3)
+        self.assertIn("proj-one", calls[1])
+        self.assertIn("proj-two", calls[2])
+        self.assertIn("### Explanation", md)
+
+    def test_detailed_ai_failure_is_soft_per_project(self):
+        md = report.daily_report("2026-06-17", self.paths,
+                                 engine_fn=lambda p: None, detailed=True)
+        self.assertIn("AI explanation unavailable", md)
+
 
 if __name__ == "__main__":
     unittest.main()
