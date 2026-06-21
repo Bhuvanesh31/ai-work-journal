@@ -29,6 +29,7 @@ def discover_git_repos(cwds):
 
 
 def ingest(paths=None, strict=False, claude_base=None, codex_base=None) -> dict:
+    # TODO: wire strict=True to re-raise parse errors
     paths = paths or config.get_paths()
     config.ensure_dirs(paths)
     conn = store.connect(paths)
