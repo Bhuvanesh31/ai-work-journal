@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import tempfile
 import unittest
 
@@ -30,7 +32,7 @@ class ReportTest(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_stats_and_render(self):
-        md = report.daily_report(self.paths, "2026-06-17")
+        md = report.daily_report("2026-06-17", self.paths)
         self.assertIn("# Work journal — 2026-06-17", md)
         self.assertIn("Human prompts: 7", md)
         self.assertIn("Tool calls: 6", md)
@@ -38,15 +40,22 @@ class ReportTest(unittest.TestCase):
         self.assertIn("Bash: 3", md)
 
     def test_ai_section_uses_injected_engine(self):
-        md = report.daily_report(self.paths, "2026-06-17", ai=True,
-                                 engine=lambda prompt: "NARRATIVE-OK")
+        md = report.daily_report("2026-06-17", self.paths,
+                                 engine_fn=lambda prompt: "NARRATIVE-OK")
         self.assertIn("## AI summary", md)
         self.assertIn("NARRATIVE-OK", md)
 
     def test_ai_failure_is_soft(self):
-        md = report.daily_report(self.paths, "2026-06-17", ai=True,
-                                 engine=lambda prompt: None)
+        md = report.daily_report("2026-06-17", self.paths,
+                                 engine_fn=lambda prompt: None)
         self.assertIn("AI summary unavailable", md)
+
+    def test_file_save_behavior(self):
+        date = "2026-06-17"
+        md = report.daily_report(date, self.paths)
+        saved_path = self.paths.reports / f"{date}.md"
+        self.assertTrue(saved_path.exists())
+        self.assertEqual(saved_path.read_text(encoding="utf-8"), md)
 
 
 if __name__ == "__main__":

@@ -75,21 +75,24 @@ def build_ai_prompt(stats: dict, label: str) -> str:
     )
 
 
-def daily_report(paths, target_date: str, week=False, ai=False, engine=None) -> str:
+def daily_report(date: str, paths, engine_fn=None, week: bool = False) -> str:
     conn = store.connect(paths)
     try:
-        evs = gather(conn, target_date, week)
+        evs = gather(conn, date, week)
     finally:
         conn.close()
     stats = build_stats(evs)
-    label = f"week ending {target_date}" if week else target_date
+    label = f"week ending {date}" if week else date
     md = render_markdown(stats, label)
-    if ai:
-        eng = engine if engine is not None else (lambda prompt: engine_mod.run_engine(prompt))
+    if engine_fn is not None:
+        eng = engine_fn
         text = eng(build_ai_prompt(stats, label))
         if text:
             md += "\n## AI summary\n\n" + text.strip() + "\n"
         else:
             md += ("\n_(AI summary unavailable — engine not found or failed; "
                    "stats above are complete.)_\n")
+    paths.reports.mkdir(parents=True, exist_ok=True)
+    out_path = paths.reports / f"{date}.md"
+    out_path.write_text(md, encoding="utf-8")
     return md
