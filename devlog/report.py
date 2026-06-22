@@ -127,7 +127,7 @@ def render_project_detail(project: str, stats: dict, label: str,
 
 
 def daily_report(date: str, paths, engine_fn=None, week: bool = False,
-                 detailed: bool = False) -> str:
+                 detailed: bool = False, emit_html: bool = False) -> str:
     conn = store.connect(paths)
     try:
         evs = gather(conn, date, week)
@@ -151,4 +151,10 @@ def daily_report(date: str, paths, engine_fn=None, week: bool = False,
     paths.reports.mkdir(parents=True, exist_ok=True)
     out_path = paths.reports / f"{date}.md"
     out_path.write_text(md, encoding="utf-8")
+    if emit_html:
+        from . import html_report as html_mod
+        html_out = html_mod.render_html(stats, label, evs,
+                                        engine_fn=engine_fn, detailed=detailed)
+        html_path = paths.reports / f"{date}.html"
+        html_path.write_text(html_out, encoding="utf-8")
     return md

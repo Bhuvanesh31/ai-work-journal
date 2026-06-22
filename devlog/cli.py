@@ -27,6 +27,8 @@ def main(argv=None) -> int:
     pr.add_argument("--ai", action="store_true", help="append an AI narrative")
     pr.add_argument("--detailed", action="store_true",
                     help="add per-project breakdown with stats and optional AI explanation")
+    pr.add_argument("--html", action="store_true",
+                    help="also write a styled HTML report alongside the markdown")
     pr.add_argument("--engine", default="claude", help="claude | codex")
 
     sub.add_parser("rebuild", help="rebuild journal.db from events.jsonl")
@@ -54,7 +56,7 @@ def main(argv=None) -> int:
             from . import engine as engine_mod
             engine_fn = lambda prompt: engine_mod.run_engine(prompt, name=args.engine)
         md = report_mod.daily_report(target, paths, engine_fn=engine_fn, week=args.week,
-                                     detailed=args.detailed)
+                                     detailed=args.detailed, emit_html=args.html)
         out_file = paths.reports / "daily" / f"{target}.md"
         out_file.parent.mkdir(parents=True, exist_ok=True)
         out_file.write_text(md, encoding="utf-8")
