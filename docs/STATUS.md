@@ -1,35 +1,51 @@
 # devlog — Project Status
-> Last updated: 2026-06-23
+> Last updated: 2026-07-02
 
 ---
 
 ## What Is This?
 
-**devlog** is a zero-effort, self-writing AI work journal CLI. It ingests Claude Code transcripts, Codex session logs, and git commits — then generates structured markdown and HTML daily/weekly reports. No manual writing required. No cloud API calls. Runs entirely from local CLI tools.
+**devlog** is a zero-effort, self-writing AI work journal CLI. It ingests Claude Code transcripts, Codex session logs, and git commits — then generates structured markdown and HTML daily/weekly reports. No manual writing. No cloud API calls. Runs entirely from local CLI tools.
 
-Install: `pipx install .`  
-Run: `devlog ingest && devlog report --week --detailed --ai --html`
+```bash
+pipx install .
+devlog ingest && devlog report --week --detailed --ai --html
+```
 
 ---
 
-## Current Architecture
+## Current State (as of 2026-07-02)
+
+| Item | Status |
+|------|--------|
+| Branch | `master` |
+| Remote | `https://github.com/Bhuvanesh31/ai-work-journal.git` — in sync |
+| Tests | **48/48 passing** (`python -m pytest devlog/tests/ -v`) |
+| Live store | **966 events** ingested (670 Claude + 3 Codex + 293 git) |
+| Reports generated | 2× `.md`, 1× `.html` |
+| pipx install | `~/.local/bin/devlog` — working |
+| Working tree | Clean (only `__pycache__` untracked, covered by `.gitignore`) |
+
+---
+
+## Architecture
 
 ### Three-tier durability model
 
 ```
-[source logs]          [verbatim archive + events.jsonl]     [SQLite]
-~/.claude/projects/  →  ~/.local/share/devlog/archive/    →  journal.db
-~/.codex/            →  ~/.local/share/devlog/events.jsonl   (rebuildable)
-git repos            →
+[source logs]              [archive + events.jsonl]             [SQLite]
+~/.claude/projects/   →   ~/.local/share/devlog/archive/   →   journal.db
+~/.codex/             →   ~/.local/share/devlog/events.jsonl   (rebuildable)
+git repos             →
 ```
 
 - **Tier 1 (source):** Raw tool logs — read-only, never touched
-- **Tier 2 (archive):** Verbatim copies + append-only `events.jsonl` — crash-safe, the source of truth
-- **Tier 3 (index):** `journal.db` SQLite — query-optimised, always rebuildable from Tier 2 via `devlog rebuild`
+- **Tier 2 (archive):** Verbatim copies + append-only `events.jsonl` — crash-safe
+- **Tier 3 (index):** `journal.db` — query-optimised, always rebuildable via `devlog rebuild`
 
 ### Injectable engine pattern
 
-All AI calls go through `engine.py` which shells out to `claude -p` (or `codex exec`). Tests inject stub functions instead. No external API SDK is ever imported.
+All AI calls go through `engine.py` which shells out to `claude -p`. Tests inject stub functions. No external API SDK is imported.
 
 ### Key files
 
@@ -50,20 +66,25 @@ All AI calls go through `engine.py` which shells out to `claude -p` (or `codex e
 
 ---
 
-## Shipped Features
+## Shipped Features (all on `master`)
 
 | Commit | Date | Feature |
 |--------|------|---------|
-| `6f6198c` | 2026-06-22 | **devlog v1** — full pipeline: parsers, store, state, ingest, report, CLI |
+| `6f6198c` | 2026-06-22 | devlog v1 — full pipeline: parsers, store, state, ingest, report, CLI |
 | `18bde13` | 2026-06-22 | `pyproject.toml` + `devlog` entry point via `pipx` |
-| `f27cc6f` | 2026-06-22 | `--detailed` flag — per-project stat cards + optional AI explanation per project |
+| `f27cc6f` | 2026-06-22 | `--detailed` flag — per-project stat cards + optional AI explanation |
 | `b99ab24` | 2026-06-22 | `--html` flag — styled HTML report using Purple Studio design system |
+| `5ae7dac` | 2026-06-23 | `.gitignore` + `docs/STATUS.md` |
+| `f220138` | 2026-06-23 | `docs/SESSION_SUMMARY.md` — all 53 Claude session breakdown |
+| `ff8344c` | 2026-07-02 | `--month` flag — 30-day window ending on `--date` |
 
 ### Full CLI surface
 
 ```bash
 devlog ingest                                       # scan sources, update journal
+devlog report                                       # today's report
 devlog report --week                                # 7-day markdown report
+devlog report --month                               # 30-day markdown report
 devlog report --week --ai                           # + top-level AI narrative (claude -p)
 devlog report --week --detailed                     # + per-project stats cards
 devlog report --week --detailed --ai                # + AI narrative per project
@@ -72,18 +93,161 @@ devlog status                                       # store health + event count
 devlog rebuild                                      # rebuild journal.db from events.jsonl
 ```
 
-`--date YYYY-MM-DD` is also supported on `report` for any past date. `--engine codex` switches the AI provider.
+`--date YYYY-MM-DD` supported on `report`. `--engine codex` switches AI provider.
+
+---
+
+## Live Data in the Store
+
+`~/.local/share/devlog/events.jsonl` — **966 events** spanning **2026-05-05 → 2026-06-24** (51 days).
+
+### Event breakdown
+
+| Tool | Kind | Count |
+|------|------|------:|
+| Claude Code | `session_day` | 670 |
+| git | `commit` | 293 |
+| Codex | `session_day` | 3 |
+| **Total** | | **966** |
+
+### Aggregate stats (all-time)
+
+| Metric | Value |
+|--------|------:|
+| AI sessions | 673 |
+| Human prompts | 818 |
+| Tool calls | 10,294 |
+| Active AI time | 20,235 min (~337 h accumulated) |
+| Git commits | 293 |
+| Source files tracked | 681 |
+
+### Top projects (by session count)
+
+| Project | Sessions |
+|---------|--------:|
+| leadle-gtm-intelligence | 261 |
+| agentops-core | 193 |
+| ai-native-work-brain | 116 |
+| leadle-master-claude | 96 |
+| ai-work-journal | 88 |
+| ai-native-plans | 83 |
+| reports | 47 |
+| claude-sessions-project | 29 |
+| leadle-client-dashboard | 15 |
+| bhuvanesh-content-studio | 12 |
+
+---
+
+## Exports Generated
+
+Reports live at `~/.local/share/devlog/reports/`.
+
+### Files on disk
+
+| File | Size | Date covered | Contents |
+|------|------|-------------|---------|
+| `2026-06-21.md` | 12 KB | 2026-06-21 | Daily markdown — sessions, commits, top tools |
+| `2026-06-22.md` | 53 KB | week ending 2026-06-22 | Full weekly markdown with per-project breakdown |
+| `2026-06-22.html` | 48 KB | week ending 2026-06-22 | Self-contained HTML — Purple Studio, light/dark toggle |
+
+### What each export contains
+
+**Markdown reports** (`*.md`):
+- Summary stats: session count, human prompts, tool calls, active time, commit count
+- Projects: each active project with session count
+- Top tools: most-used Claude Code tools ranked by call count
+- Commits: each commit with short SHA + message + project
+- AI summary (if `--ai`): 3–4 sentence narrative + 3–5 bullet performance review
+- Per-project detail blocks (if `--detailed`): scoped stats, top tools, commits, AI explanation
+
+**HTML report** (`*.html`) adds:
+- Purple Studio design system (Antigravity dark / Brutalism cream, toggled via top bar button)
+- Stat cards with icons for all top-level metrics
+- Per-project expandable cards with scoped breakdowns
+- All CSS bundled inline — fully self-contained, shareable, viewable offline
+- `accumulated · may exceed 24h/day` note (parallel sessions each count full duration)
+
+### Event schema
+
+**`session_day` event** (from Claude Code):
+```json
+{
+  "schema_version": 1,
+  "event_id": "<sha256 of source path + ts>",
+  "ts": "2026-06-22T15:30:00.000Z",
+  "date": "2026-06-22",
+  "tool": "claude",
+  "kind": "session_day",
+  "project": "leadle-gtm-intelligence",
+  "cwd": "/home/bhuvanesh/AI_Native_Workspace/...",
+  "git_branch": "main",
+  "session_id": "<uuid>",
+  "title": "(first user message or untitled session)",
+  "summary": "",
+  "meta": {
+    "prompt_count": 12,
+    "tool_use_count": 87,
+    "tool_breakdown": { "Bash": 34, "Read": 22, "Edit": 18 },
+    "duration_min": 45,
+    "first_ts": "2026-06-22T14:45:00.000Z",
+    "last_ts": "2026-06-22T15:30:00.000Z",
+    "model": "claude-sonnet-4-6",
+    "models": ["claude-sonnet-4-6"]
+  },
+  "raw_ref": "archive/claude/<session_id>.jsonl"
+}
+```
+
+**`commit` event** (from git):
+```json
+{
+  "schema_version": 1,
+  "event_id": "<sha256 of commit hash>",
+  "ts": "2026-06-22T01:22:34+05:30",
+  "date": "2026-06-22",
+  "tool": "git",
+  "kind": "commit",
+  "project": "agentops-core",
+  "cwd": "/home/bhuvanesh/AI_Native_Workspace/...",
+  "git_branch": null,
+  "session_id": null,
+  "title": "feat: backfill_usage_metrics + maintenance subcommands",
+  "summary": "feat: backfill_usage_metrics + maintenance subcommands",
+  "meta": {
+    "commit": "9d1eabe80305f045362b7d7c9edab3fb0eb6d219",
+    "author": "Bhuvanesh"
+  },
+  "raw_ref": null
+}
+```
+
+**`session_day` event** (from Codex — partial, `project`/`cwd` not captured yet):
+```json
+{
+  "tool": "codex",
+  "kind": "session_day",
+  "project": null,
+  "cwd": null,
+  "meta": {
+    "prompt_count": 0,
+    "msg_count": 272,
+    "first_ts": "...",
+    "last_ts": "...",
+    "best_effort": true
+  }
+}
+```
 
 ---
 
 ## Test Suite
 
-**47 tests — all passing.** Run: `python -m pytest devlog/tests/ -v`
+**48 tests — all passing.** `python -m pytest devlog/tests/ -v`
 
 | Test file | Count | What it covers |
 |-----------|------:|----------------|
 | `test_html_report.py` | 11 | HTML structure, XSS escaping, commit truncation, per-project sections, AI injection/failure, `emit_html` file write |
-| `test_report.py` | 8 | Stats builder, markdown render, AI prompt, per-project detail, engine injection/failure |
+| `test_report.py` | 9 | Stats builder, markdown render, AI prompt, per-project detail, engine injection/failure, month window |
 | `test_store.py` | 4 | Idempotent append, archive copy, query range, rebuild |
 | `test_events.py` | 5 | Stable event IDs, project derivation from CWD, timestamp parsing |
 | `test_state.py` | 3 | Cursor persist, change detection, idempotent mark |
@@ -99,125 +263,84 @@ devlog rebuild                                      # rebuild journal.db from ev
 
 ## Design System
 
-The HTML output uses **Purple Studio** — Bhuvanesh's personal design system at:  
-`/home/bhuvanesh/AI_Native_Workspace/40-personal-systems/bhuvanesh_content_studio/design-system/`
+HTML output uses **Purple Studio** — CSS tokens bundled inline into `html_report.py` (lines 13–74) so `.html` files have zero external dependencies.
 
-The CSS tokens from `foundation/tokens.css` are **bundled inline** into `html_report.py` (line 13–74) so generated `.html` files are fully self-contained — no external file dependencies, viewable offline.
+- **Antigravity** (default): dark glass, ink `#0F0F0F`, violet `#5B21B6` accent
+- **Brutalism**: cream `#F4F1EB`, hard 3px borders, box-shadow offsets
 
-**Two visual modes** toggled via a button in the top bar:
-- **Antigravity** (default): dark glass, ink `#0F0F0F`, frosted glass cards, violet `#5B21B6` accent
-- **Brutalism**: cream `#F4F1EB`, hard 3px borders, box-shadow offsets, no blur
-
----
-
-## Key Technical Constraints
-
-1. **Zero pip dependencies** — Python 3.8+ stdlib only (`pathlib`, `sqlite3`, `json`, `html`, `subprocess`, `hashlib`, `argparse`). `pipx install .` works with no conflict in any environment.
-2. **No cloud API calls** — all AI calls shell out to `claude -p` or `codex exec` locally. No `anthropic` or `openai` SDK imports anywhere.
-3. **Idempotent ingest** — running `devlog ingest` multiple times produces no duplicate events (SHA-256 event IDs).
-4. **Rebuildable store** — `journal.db` can be deleted and regenerated at any time from `events.jsonl`.
-
----
-
-## Challenges Faced
-
-### 1. Context window exhaustion during development
-The original Claude Code session ran out of context while working on the HTML sample build. All code and tests were already committed at that point, so no work was lost — but the conversation had to be resumed from summary.
-
-**Mitigation:** Key architecture decisions and conventions are persisted in memory files at `~/.claude/projects/.../memory/`.
-
-### 2. No editable pip install on modern Ubuntu
-`pip install -e .` is blocked by PEP 668 on Debian/Ubuntu. Using `pipx install --force .` after any code change reinstalls into the existing pipx venv cleanly.
-
-### 3. `html` is a stdlib module name
-Named the parameter `emit_html` (not `html`) in `daily_report()` to avoid shadowing the stdlib `import html` used for XSS escaping in `html_report.py`.
-
-### 4. CSS token bundling
-The HTML report needs to be self-contained (shareable as a single file). This means the Purple Studio CSS tokens must be copied into `html_report.py` rather than linked. If the design system changes, both `foundation/tokens.css` and the inline copy in `html_report.py` (line 13) need updating.
-
-### 5. Accumulated AI session time vs. wall-clock time
-Claude Code tracks `duration_min` per session independently — running two projects simultaneously means both count their time. The "AI Session Time" stat in the HTML report can exceed 24h/day for a single calendar day. Added a note: `accumulated · may exceed 24h/day`.
-
----
-
-## Current State (as of 2026-06-23)
-
-- **Branch:** `master`
-- **Remote:** `https://github.com/Bhuvanesh31/ai-work-journal.git` — in sync, all features merged
-- **Last commit:** `b99ab24 feat: --html flag generates styled HTML report using Purple Studio design system`
-- **Tests:** 47/47 passing
-- **Git working tree:** clean (only `__pycache__` and build artifacts untracked)
-- **pipx:** installed at `~/.local/bin/devlog`
-
-The tool is **functional and installable**. The HTML report is fully styled and passes all tests. The last conversation ended while generating a live sample build from real week data — that never got committed (it's runtime output, not source code), so the task is simply to run it.
+Source at: `/home/bhuvanesh/AI_Native_Workspace/40-personal-systems/bhuvanesh_content_studio/design-system/`  
+If `foundation/tokens.css` changes there, update the inline copy in `html_report.py:13` too.
 
 ---
 
 ## What's Pending
 
-### Immediate (next session)
+### 1 — Generate live AI report (immediate, ~5 min)
 
-1. **Run a live sample build** — the prior session ended here. Steps:
-   ```bash
-   devlog ingest
-   devlog report --week --detailed --ai --html
-   # → opens/views ~/.local/share/devlog/reports/<date>.html
-   ```
-   This is just a demo run, not code to write.
+The store has 966 events but `--ai` has never been run against real data. Run:
 
-2. **Add `.gitignore`** — `ai_work_journal.egg-info/`, `build/`, and `__pycache__/` show up as untracked noise in `git status`. A one-line fix.
+```bash
+devlog report --week --detailed --ai --html --date 2026-06-25
+# → ~/.local/share/devlog/reports/2026-06-25.html
+```
 
-### Near-term improvements (no blockers, decided in prior session)
+This triggers 1 global + N per-project `claude -p` calls and produces the first real AI-narrated HTML report.
 
-3. **Codex parser hardening** — `parsers/codex.py` is provisional. Real Codex rollout data hasn't been validated against the parser. `--strict` flag exists but needs a real corpus test.
+### 2 — Fix Codex `project`/`cwd` capture (near-term)
 
-4. **Ingest from multiple git repos** — currently `parsers/gitlog.py` only parses the repo at `cwd`. Could scan all known project directories to pick up commits from non-active repos.
+Codex `session_day` events have `project: null` and `cwd: null` — the Codex log format (`~/.codex/`) doesn't expose the working directory. Check if newer Codex log versions include `cwd` or `git_root` fields, then update `parsers/codex.py`.
 
-5. **`devlog open` command** — convenience command to open today's `.html` report in the browser (`xdg-open` / `open`).
+### 3 — `devlog open` command (near-term, ~30 min)
 
-### Longer-term (ideas, not committed)
+Opens today's HTML report in the browser. Add to `cli.py`:
 
-6. **Weekly digest email** — `devlog digest --week` that formats a plain-text or HTML email body ready to paste.
+```python
+p = sub.add_parser("open")
+# handler: resolve paths.reports / f"{today}.html", subprocess.run(["xdg-open", str(html_path)])
+```
 
-7. **Dashboard mode** — persistent HTML page that auto-refreshes from the store (local Python server), instead of a static snapshot.
+### 4 — Multi-repo git ingestion (near-term)
 
-8. **Codex integration test** — add a `test_codex_real_format.py` with a sample Codex session fixture once the real log format stabilises.
+`parsers/gitlog.py` only reads the repo at `cwd`. Should scan all known project roots under `~/AI_Native_Workspace/` to pick up commits from repos not currently active.
+
+### 5 — Weekly digest (longer-term)
+
+`devlog digest --week` formats a plain-text or HTML email body ready to paste.
+
+### 6 — Dashboard mode (longer-term)
+
+Persistent HTML page that auto-refreshes from the store via a local Python server.
 
 ---
 
-## Plan to Complete the Pending Items
+## Plan to Complete Pending Items
 
-### Step 1 — Gitignore (5 min)
-
-```bash
-# In project root
-cat >> .gitignore << 'EOF'
-__pycache__/
-*.egg-info/
-build/
-dist/
-EOF
-git add .gitignore && git commit -m "chore: add .gitignore"
-git push
-```
-
-### Step 2 — Live sample run (10 min)
+### Step 1 — Live AI report (now, 5 min)
 
 ```bash
-devlog ingest
-devlog report --week --detailed --ai --html --date $(date +%Y-%m-%d)
-# Then open the .html file from ~/.local/share/devlog/reports/
+devlog ingest  # pick up any new sessions from today
+devlog report --week --detailed --ai --html --date 2026-06-25
+xdg-open ~/.local/share/devlog/reports/2026-06-25.html
 ```
 
-This validates the full pipeline against real data and produces the sample Bhuvanesh asked for.
+### Step 2 — `devlog open` command (next session, 30 min)
 
-### Step 3 — Codex parser validation (future, when real logs are available)
+1. Add `open` subparser to `cli.py`
+2. Resolve `paths.reports / f"{today}.html"`, call `subprocess.run(["xdg-open", ...])`
+3. Add test: mock `subprocess.run`, assert correct path passed
+4. `pipx install --force .` and manually test
 
-Once Codex sessions generate logs at `~/.codex/`, run `devlog ingest --strict` and verify no errors. Fix any schema mismatches in `parsers/codex.py`.
+### Step 3 — Codex `project`/`cwd` (when real Codex logs available)
 
-### Step 4 — `devlog open` command (30 min, optional)
+1. Inspect a current `~/.codex/` log file for any `cwd` or `repo` field
+2. If present, patch `parsers/codex.py` to extract it
+3. Add fixture to `test_codex.py` covering the new field
 
-Add a `sub.add_parser("open")` in `cli.py` that resolves today's `.html` path and calls `subprocess.run(["xdg-open", str(html_path)])`. Tests: mock `subprocess.run`, assert the right path is passed.
+### Step 4 — Multi-repo git (future, ~2 h)
+
+1. Add `--git-roots` config option or auto-discover `~/AI_Native_Workspace/**/.git`
+2. Update `ingest.py` to iterate roots
+3. Update state tracking to cursor per root path
 
 ---
 
