@@ -7,9 +7,12 @@ from . import store
 from . import engine as engine_mod
 
 
-def gather(conn, target_date: str, week: bool = False):
+def gather(conn, target_date: str, week: bool = False, month: bool = False):
+    end = date_cls.fromisoformat(target_date)
+    if month:
+        start = end - timedelta(days=29)
+        return store.query_range(conn, start.isoformat(), end.isoformat())
     if week:
-        end = date_cls.fromisoformat(target_date)
         start = end - timedelta(days=6)
         return store.query_range(conn, start.isoformat(), end.isoformat())
     return store.query_range(conn, target_date, target_date)
@@ -127,14 +130,20 @@ def render_project_detail(project: str, stats: dict, label: str,
 
 
 def daily_report(date: str, paths, engine_fn=None, week: bool = False,
-                 detailed: bool = False, emit_html: bool = False) -> str:
+                 month: bool = False, detailed: bool = False,
+                 emit_html: bool = False) -> str:
     conn = store.connect(paths)
     try:
-        evs = gather(conn, date, week)
+        evs = gather(conn, date, week=week, month=month)
     finally:
         conn.close()
     stats = build_stats(evs)
-    label = f"week ending {date}" if week else date
+    if month:
+        label = f"month ending {date}"
+    elif week:
+        label = f"week ending {date}"
+    else:
+        label = date
     md = render_markdown(stats, label)
     if engine_fn is not None:
         text = engine_fn(build_ai_prompt(stats, label))

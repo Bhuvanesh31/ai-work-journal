@@ -86,6 +86,19 @@ class ReportTest(unittest.TestCase):
                                  engine_fn=lambda p: None, detailed=True)
         self.assertIn("AI explanation unavailable", md)
 
+    def test_month_label_and_range(self):
+        # seed a session 20 days before target (inside 30-day window, outside 7-day)
+        conn = store.connect(self.paths)
+        store.append_events(self.paths, conn, [
+            _session("c", "2026-05-28", "proj-old", 3, {"Bash": 1}, 20),
+        ])
+        conn.close()
+        md_week = report.daily_report("2026-06-17", self.paths, week=True)
+        md_month = report.daily_report("2026-06-17", self.paths, month=True)
+        self.assertIn("month ending 2026-06-17", md_month)
+        self.assertNotIn("proj-old", md_week)
+        self.assertIn("proj-old", md_month)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,6 +24,7 @@ def main(argv=None) -> int:
     pr = sub.add_parser("report", help="render a daily/weekly report")
     pr.add_argument("--date", default="today", help="'today' or YYYY-MM-DD")
     pr.add_argument("--week", action="store_true", help="7-day window ending on --date")
+    pr.add_argument("--month", action="store_true", help="30-day window ending on --date")
     pr.add_argument("--ai", action="store_true", help="append an AI narrative")
     pr.add_argument("--detailed", action="store_true",
                     help="add per-project breakdown with stats and optional AI explanation")
@@ -56,7 +57,8 @@ def main(argv=None) -> int:
             from . import engine as engine_mod
             engine_fn = lambda prompt: engine_mod.run_engine(prompt, name=args.engine)
         md = report_mod.daily_report(target, paths, engine_fn=engine_fn, week=args.week,
-                                     detailed=args.detailed, emit_html=args.html)
+                                     month=args.month, detailed=args.detailed,
+                                     emit_html=args.html)
         out_file = paths.reports / "daily" / f"{target}.md"
         out_file.parent.mkdir(parents=True, exist_ok=True)
         out_file.write_text(md, encoding="utf-8")
