@@ -203,12 +203,19 @@ body {
 }
 [data-style="brutalism"] .tag.top-tag .tag-count { color: rgba(255,255,255,0.7); }
 
-/* Projects grid */
+/* Projects — horizontal scrolling row */
 .projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  display: flex;
+  flex-direction: row;
   gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scroll-snap-type: x mandatory;
 }
+.projects-grid::-webkit-scrollbar { height: 4px; }
+.projects-grid::-webkit-scrollbar-track { background: transparent; }
+.projects-grid::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+.project-card { min-width: 300px; max-width: 340px; flex-shrink: 0; scroll-snap-align: start; }
 .project-card .card { height: 100%; }
 .project-name {
   font-weight: 700; font-size: 18px;
@@ -282,8 +289,7 @@ body {
 
 /* AI sections */
 .ai-summary-text {
-  font-size: 16px; line-height: var(--lh-loose);
-  color: var(--fg-1); white-space: pre-wrap;
+  font-size: 15px; line-height: var(--lh-loose); color: var(--fg-1);
 }
 .ai-block { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 .ai-label {
@@ -291,7 +297,19 @@ body {
   letter-spacing: var(--ls-wide); text-transform: uppercase;
   color: var(--fg-3); margin-bottom: 8px;
 }
-.ai-text { font-size: 13px; line-height: 1.65; color: var(--fg-2); white-space: pre-wrap; }
+.ai-text { font-size: 13px; line-height: 1.65; color: var(--fg-2); }
+.ai-text h2, .ai-text h3 {
+  font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--fg-3); margin: 16px 0 6px; font-family: var(--font-mono);
+}
+.ai-text h2:first-child, .ai-text h3:first-child { margin-top: 0; }
+.ai-text p { margin-bottom: 10px; }
+.ai-text p:last-child { margin-bottom: 0; }
+.ai-text strong { color: var(--fg); font-weight: 700; }
+.ai-text ul { margin: 6px 0 10px 16px; display: flex; flex-direction: column; gap: 6px; }
+.ai-text ul:last-child { margin-bottom: 0; }
+.ai-text li { line-height: 1.55; }
+.ai-text li strong { color: var(--fg-1); }
 .ai-unavail { color: var(--fg-3); font-style: italic; font-size: 13px; }
 
 /* Footer */
@@ -311,6 +329,52 @@ def _e(s: object) -> str:
 
 def _fmt(n: int) -> str:
     return f"{n:,}"
+
+
+import re as _re
+
+def _md_to_html(text: str) -> str:
+    """Convert the markdown subset Claude produces into safe HTML."""
+    lines = text.strip().splitlines()
+    out: list[str] = []
+    in_ul = False
+
+    def close_ul():
+        nonlocal in_ul
+        if in_ul:
+            out.append("</ul>")
+            in_ul = False
+
+    def inline(s: str) -> str:
+        s = _html.escape(s)
+        # **bold**
+        s = _re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
+        # *italic*
+        s = _re.sub(r'\*(.+?)\*', r'<em>\1</em>', s)
+        return s
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            close_ul()
+            continue
+        if stripped.startswith("## "):
+            close_ul()
+            out.append(f"<h2>{inline(stripped[3:])}</h2>")
+        elif stripped.startswith("# "):
+            close_ul()
+            out.append(f"<h3>{inline(stripped[2:])}</h3>")
+        elif stripped.startswith("- ") or stripped.startswith("* "):
+            if not in_ul:
+                out.append("<ul>")
+                in_ul = True
+            out.append(f"<li>{inline(stripped[2:])}</li>")
+        else:
+            close_ul()
+            out.append(f"<p>{inline(stripped)}</p>")
+
+    close_ul()
+    return "\n".join(out)
 
 
 def _commit_hash(commit: dict) -> str:
@@ -415,7 +479,7 @@ def _render_project_card(project: str, proj_stats: dict, label: str,
             ai_html = (
                 f'<div class="ai-block">'
                 f'<div class="ai-label">Summary</div>'
-                f'<div class="ai-text">{_e(text.strip())}</div>'
+                f'<div class="ai-text">{_md_to_html(text)}</div>'
                 f'</div>'
             )
         else:
@@ -481,7 +545,7 @@ def render_html(stats: dict, label: str, evs: list,
                 f'<div class="section-label">AI Summary</div>'
                 f'<div class="card">'
                 f'<div class="card-stripe"></div>'
-                f'<div class="ai-summary-text">{_e(text.strip())}</div>'
+                f'<div class="ai-summary-text ai-text">{_md_to_html(text)}</div>'
                 f'</div>'
                 f'</div>'
             )
