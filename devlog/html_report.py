@@ -203,33 +203,58 @@ body {
 }
 [data-style="brutalism"] .tag.top-tag .tag-count { color: rgba(255,255,255,0.7); }
 
-/* Projects — horizontal scrolling row */
-.projects-grid {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  scroll-snap-type: x mandatory;
+/* Projects — vertical list of full-width horizontal rows */
+.projects-grid { display: flex; flex-direction: column; gap: 12px; }
+.project-card .card {
+  display: flex; flex-direction: row; align-items: flex-start;
+  gap: 0; padding: 0; overflow: hidden;
 }
-.projects-grid::-webkit-scrollbar { height: 4px; }
-.projects-grid::-webkit-scrollbar-track { background: transparent; }
-.projects-grid::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
-.project-card { min-width: 300px; max-width: 340px; flex-shrink: 0; scroll-snap-align: start; }
-.project-card .card { height: 100%; }
-.project-name {
-  font-weight: 700; font-size: 18px;
-  letter-spacing: var(--ls-tight); color: var(--fg); margin-bottom: 16px;
+.pc-left {
+  flex-shrink: 0; width: 200px; padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center;
 }
-.project-stats-row { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+[data-style="brutalism"] .pc-left { border-right: 3px solid var(--border); }
+.pc-left .card-stripe {
+  height: 3px; border-radius: 0; margin: -20px -24px 16px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+[data-style="brutalism"] .pc-left .card-stripe {
+  background: var(--accent); height: 4px;
+}
+.pc-left .eyebrow {
+  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase; color: var(--fg-2);
+  word-break: break-all;
+}
+.pc-sessions {
+  font-weight: 900; font-size: 36px; line-height: 1;
+  letter-spacing: var(--ls-tightest); color: var(--fg); margin-top: 8px;
+}
+.pc-sessions-label {
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--fg-3); margin-top: 3px;
+}
+.pc-middle {
+  flex-shrink: 0; width: 280px; padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 16px; justify-content: center;
+}
+[data-style="brutalism"] .pc-middle { border-right: 3px solid var(--border); }
+.project-stats-row { display: flex; gap: 20px; flex-wrap: wrap; }
 .ps .ps-v {
-  font-weight: 800; font-size: 24px; line-height: 1;
+  font-weight: 800; font-size: 22px; line-height: 1;
   letter-spacing: var(--ls-tight); color: var(--fg);
 }
 .ps .ps-k {
   font-family: var(--font-mono); font-size: 9px;
   letter-spacing: var(--ls-wide); text-transform: uppercase;
   color: var(--fg-3); margin-top: 3px;
+}
+.pc-right {
+  flex: 1; min-width: 0; padding: 20px 28px;
+  display: flex; flex-direction: column; justify-content: center;
 }
 
 /* Commits — global list */
@@ -490,17 +515,28 @@ def _render_project_card(project: str, proj_stats: dict, label: str,
     return (
         f'<div class="project-card">'
         f'<div class="card">'
+
+        f'<div class="pc-left">'
         f'<div class="card-stripe"></div>'
         f'<div class="eyebrow">{_e(project)}</div>'
+        f'<div class="pc-sessions">{sessions}</div>'
+        f'<div class="pc-sessions-label">Sessions</div>'
+        f'</div>'
+
+        f'<div class="pc-middle">'
         f'<div class="project-stats-row">'
-        f'<div class="ps"><div class="ps-v">{sessions}</div><div class="ps-k">Sessions</div></div>'
         f'<div class="ps"><div class="ps-v">{prompts}</div><div class="ps-k">Prompts</div></div>'
         f'<div class="ps"><div class="ps-v">{_fmt(tool_use)}</div><div class="ps-k">Tools</div></div>'
-        f'<div class="ps"><div class="ps-v">{duration}</div><div class="ps-k">Min</div></div>'
+        f'<div class="ps"><div class="ps-v">{duration}m</div><div class="ps-k">Active</div></div>'
         f'<div class="ps"><div class="ps-v">{len(commits)}</div><div class="ps-k">Commits</div></div>'
         f'</div>'
-        f'{ai_html}'
         f'{commits_html}'
+        f'</div>'
+
+        f'<div class="pc-right">'
+        f'{ai_html if ai_html else "<div class=\"no-data\">Run with --ai for a summary</div>"}'
+        f'</div>'
+
         f'</div>'
         f'</div>'
     )
