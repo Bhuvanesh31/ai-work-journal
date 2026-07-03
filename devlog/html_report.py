@@ -225,15 +225,7 @@ body {
   color: var(--fg-3); margin-top: 3px;
 }
 
-/* Commits */
-.commit-list { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
-.commit-item {
-  font-family: var(--font-mono); font-size: 11px; color: var(--fg-2);
-  display: flex; gap: 8px; align-items: flex-start; line-height: 1.5;
-}
-.commit-hash { color: var(--accent); flex-shrink: 0; font-weight: 700; }
-[data-style="brutalism"] .commit-hash { color: var(--violet); }
-
+/* Commits — global list */
 .commit-full-list { display: flex; flex-direction: column; }
 .commit-full-item {
   font-family: var(--font-mono); font-size: 12px; color: var(--fg-2);
@@ -254,10 +246,34 @@ body {
 [data-style="brutalism"] .commit-project-tag {
   background: var(--accent); color: var(--bone, #fff); border-radius: 0;
 }
-.commit-more {
-  font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);
-  padding: 10px 0; text-align: center; letter-spacing: 0.05em;
+
+/* Commits — collapsible inside project cards */
+.commit-details {
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
 }
+.commit-details summary {
+  font-family: var(--font-mono); font-weight: 700; font-size: 9px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--accent); cursor: pointer; list-style: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.commit-details summary::-webkit-details-marker { display: none; }
+.commit-details summary::before { content: "▶"; font-size: 7px; transition: transform 0.15s; }
+.commit-details[open] summary::before { transform: rotate(90deg); }
+.commit-details summary:hover { opacity: 0.8; }
+.commit-details .commit-inner {
+  margin-top: 12px; display: flex; flex-direction: column;
+}
+.commit-details .ci {
+  font-family: var(--font-mono); font-size: 11px; color: var(--fg-2);
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.commit-details .ci:last-child { border-bottom: none; }
+.commit-details .ch { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+.commit-details .cm { color: var(--fg-2); line-height: 1.5; }
+[data-style="brutalism"] .commit-details .ch { color: var(--violet); }
+[data-style="brutalism"] .commit-details .cm { color: var(--gray-900, #0d0d0d); }
 
 .no-data {
   font-family: var(--font-mono); font-size: 11px;
@@ -361,6 +377,29 @@ def _render_tool_tags(tools, max_shown: int) -> str:
     return "\n".join(tags)
 
 
+def _render_collapsible_commits(commits: list) -> str:
+    if not commits:
+        return ""
+    n = len(commits)
+    label = f"{n} commit{'s' if n != 1 else ''} — click to expand"
+    rows = []
+    for c in commits:
+        h = _commit_hash(c)
+        msg = _e(c.get("summary", ""))
+        rows.append(
+            f'<div class="ci">'
+            f'<span class="ch">{h}</span>'
+            f'<span class="cm">{msg}</span>'
+            f'</div>'
+        )
+    return (
+        f'<details class="commit-details">'
+        f'<summary>{label}</summary>'
+        f'<div class="commit-inner">{"".join(rows)}</div>'
+        f'</details>'
+    )
+
+
 def _render_project_card(project: str, proj_stats: dict, label: str,
                           engine_fn) -> str:
     sessions = len(proj_stats["sessions"])
@@ -382,6 +421,8 @@ def _render_project_card(project: str, proj_stats: dict, label: str,
         else:
             ai_html = '<div class="ai-block ai-unavail">AI summary unavailable</div>'
 
+    commits_html = _render_collapsible_commits(commits)
+
     return (
         f'<div class="project-card">'
         f'<div class="card">'
@@ -395,6 +436,7 @@ def _render_project_card(project: str, proj_stats: dict, label: str,
         f'<div class="ps"><div class="ps-v">{len(commits)}</div><div class="ps-k">Commits</div></div>'
         f'</div>'
         f'{ai_html}'
+        f'{commits_html}'
         f'</div>'
         f'</div>'
     )

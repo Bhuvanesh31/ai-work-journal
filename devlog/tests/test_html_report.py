@@ -102,10 +102,9 @@ class HtmlReportTest(unittest.TestCase):
         h = html_report.render_html(stats, "2026-06-17", evs, detailed=True)
         # proj-beta (2 sessions) must appear before proj-alpha (1 session)
         self.assertLess(h.index("proj-beta"), h.index("proj-alpha"))
-        # commit hashes must NOT appear inside the project cards div (only in global commits)
-        grid_start = h.index('class="projects-grid"')
-        grid_end = h.index("</div></div>", grid_start)
-        self.assertNotIn("aaaa1111", h[grid_start:grid_end])
+        # commits appear inside collapsible <details>, not as flat line items
+        self.assertIn("commit-details", h)
+        self.assertIn("click to expand", h)
 
     def test_html_ai_summary_uses_injected_engine(self):
         stats, evs = self._stats_and_evs()
