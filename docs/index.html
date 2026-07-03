@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>devlog // month ending 2026-07-03</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --ink:        #0F0F0F;
+  --ink-soft:   #1A1A1A;
+  --paper:      #F4F1EB;
+  --bone:       #FFFFFF;
+  --violet:     #5B21B6;
+  --violet-2:   #A78BFA;
+  --gray:       #9C9A9A;
+  --gray-100:   #F8F7F7;
+  --gray-900:   #0D0D0D;
+
+  --glass-fill:        rgba(255,255,255,0.04);
+  --glass-fill-2:      rgba(255,255,255,0.06);
+  --glass-border:      rgba(255,255,255,0.08);
+  --glass-border-2:    rgba(255,255,255,0.12);
+  --accent-glow:       rgba(91,33,182,0.07);
+  --accent-glow-2:     rgba(91,33,182,0.15);
+  --accent-cta-shadow: rgba(91,33,182,0.35);
+
+  --bg:        #0F0F0F;
+  --bg-soft:   #1A1A1A;
+  --bg-card:   rgba(255,255,255,0.04);
+  --fg:        #FFFFFF;
+  --fg-1:      rgba(255,255,255,0.92);
+  --fg-2:      rgba(255,255,255,0.55);
+  --fg-3:      rgba(255,255,255,0.30);
+  --border:    rgba(255,255,255,0.08);
+  --border-2:  rgba(255,255,255,0.12);
+  --accent:    #5B21B6;
+  --accent-fg: #FFFFFF;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --lh-snug:  1.15;
+  --lh-loose: 1.6;
+  --ls-tight:    -0.02em;
+  --ls-tightest: -0.05em;
+  --ls-wide:      0.18em;
+
+  --radius-sm:   8px;
+  --radius-md:   16px;
+  --radius-pill: 999px;
+
+  --shadow-glass-sm: 0 8px 24px rgba(0,0,0,0.25);
+  --shadow-brut:     6px 6px 0 #0D0D0D;
+}
+
+[data-style="brutalism"] {
+  --bg:      #F4F1EB;
+  --bg-soft: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --fg:      #0D0D0D;
+  --fg-1:    #0D0D0D;
+  --fg-2:    rgba(13,13,13,0.7);
+  --fg-3:    rgba(13,13,13,0.5);
+  --border:  #0D0D0D;
+}
+
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: var(--lh-loose);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.22s, color 0.22s;
+}
+
+.stripe-top {
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), transparent 70%);
+  position: sticky; top: 0; z-index: 100;
+}
+[data-style="brutalism"] .stripe-top { background: var(--accent); height: 6px; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 64px;
+  border-bottom: 1px solid var(--border);
+}
+.wordmark {
+  font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-2);
+}
+.wordmark b { color: var(--accent); }
+
+.toggle {
+  font-family: var(--font-mono); font-weight: 700; font-size: 10px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  background: transparent; color: var(--fg-2);
+  border: 1px solid var(--border-2);
+  padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.toggle:hover { color: var(--fg); border-color: var(--accent); }
+[data-style="brutalism"] .toggle {
+  border: 2px solid var(--border); border-radius: 0;
+  box-shadow: 3px 3px 0 var(--border);
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 64px 64px 96px; }
+
+.page-header { margin-bottom: 64px; }
+.eyebrow {
+  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase; color: var(--fg-3);
+  margin-bottom: 12px;
+}
+.eyebrow .dot { color: var(--accent); margin: 0 8px; }
+.page-header h1 {
+  font-weight: 800; font-size: clamp(40px, 5.5vw, 56px);
+  line-height: var(--lh-snug); letter-spacing: var(--ls-tightest); color: var(--fg);
+}
+.page-header h1 .accent { color: var(--accent); }
+
+.stats-row {
+  display: flex; gap: 48px; flex-wrap: wrap;
+  margin-bottom: 64px; padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+}
+.stat .n {
+  font-weight: 900; font-size: clamp(32px, 3.5vw, 40px);
+  line-height: 1; letter-spacing: var(--ls-tight); color: var(--fg);
+}
+.stat .n .accent { color: var(--accent); }
+.stat .l {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--fg-3); margin-top: 4px;
+}
+.stat .note {
+  font-size: 10px; color: var(--fg-3); margin-top: 2px;
+  font-family: var(--font-mono);
+}
+
+.section { margin-bottom: 48px; }
+.section-label {
+  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--fg-3); margin-bottom: 16px;
+}
+
+.card {
+  background: var(--glass-fill); border: 1px solid var(--border);
+  border-radius: var(--radius-md); backdrop-filter: blur(40px);
+  box-shadow: var(--shadow-glass-sm); padding: 24px 32px;
+}
+[data-style="brutalism"] .card {
+  background: var(--bone, #fff); border: 3px solid var(--border);
+  border-radius: 0; box-shadow: var(--shadow-brut); backdrop-filter: none;
+}
+
+.card-stripe {
+  height: 3px; border-radius: 2px 2px 0 0;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  margin: -24px -32px 20px;
+}
+[data-style="brutalism"] .card-stripe {
+  background: var(--accent); height: 5px; border-radius: 0;
+}
+
+/* Tools */
+.tool-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-weight: 700; font-size: 10px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  padding: 6px 14px; border-radius: var(--radius-pill);
+  background: var(--glass-fill-2); color: var(--fg-2);
+  border: 1px solid var(--border);
+}
+.tag .dot { color: var(--accent); font-size: 7px; }
+.tag .tag-count { color: var(--fg-3); font-weight: 400; margin-left: 4px; }
+.tag.top-tag { background: var(--accent-glow-2); color: var(--violet-2); border-color: transparent; }
+.tag.top-tag .tag-count { color: var(--violet-2); opacity: 0.7; }
+[data-style="brutalism"] .tag {
+  border-radius: 0; border: 2px solid var(--border);
+  background: var(--gray-100, #f8f7f7); color: var(--gray-900, #0d0d0d);
+}
+[data-style="brutalism"] .tag.top-tag {
+  background: var(--accent); color: var(--bone, #fff);
+  border-color: var(--border); box-shadow: 3px 3px 0 var(--border);
+}
+[data-style="brutalism"] .tag.top-tag .tag-count { color: rgba(255,255,255,0.7); }
+
+/* Projects — vertical list of full-width horizontal rows */
+.projects-grid { display: flex; flex-direction: column; gap: 12px; }
+.project-card .card {
+  display: flex; flex-direction: row; align-items: flex-start;
+  gap: 0; padding: 0; overflow: hidden;
+}
+.pc-left {
+  flex-shrink: 0; width: 200px; padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center;
+}
+[data-style="brutalism"] .pc-left { border-right: 3px solid var(--border); }
+.pc-left .card-stripe {
+  height: 3px; border-radius: 0; margin: -20px -24px 16px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+[data-style="brutalism"] .pc-left .card-stripe {
+  background: var(--accent); height: 4px;
+}
+.pc-left .eyebrow {
+  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase; color: var(--fg-2);
+  word-break: break-all;
+}
+.pc-sessions {
+  font-weight: 900; font-size: 36px; line-height: 1;
+  letter-spacing: var(--ls-tightest); color: var(--fg); margin-top: 8px;
+}
+.pc-sessions-label {
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--fg-3); margin-top: 3px;
+}
+.pc-middle {
+  flex-shrink: 0; width: 280px; padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 16px; justify-content: center;
+}
+[data-style="brutalism"] .pc-middle { border-right: 3px solid var(--border); }
+.project-stats-row { display: flex; gap: 20px; flex-wrap: wrap; }
+.ps .ps-v {
+  font-weight: 800; font-size: 22px; line-height: 1;
+  letter-spacing: var(--ls-tight); color: var(--fg);
+}
+.ps .ps-k {
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--fg-3); margin-top: 3px;
+}
+.pc-right {
+  flex: 1; min-width: 0; padding: 20px 28px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+/* Commits — global list */
+.commit-full-list { display: flex; flex-direction: column; }
+.commit-full-item {
+  font-family: var(--font-mono); font-size: 12px; color: var(--fg-2);
+  display: flex; gap: 12px; align-items: baseline;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.commit-full-item:last-of-type { border-bottom: none; }
+.commit-full-hash { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+[data-style="brutalism"] .commit-full-hash { color: var(--violet); }
+.commit-full-msg { color: var(--fg-1); line-height: 1.5; }
+[data-style="brutalism"] .commit-full-msg { color: var(--gray-900, #0d0d0d); }
+.commit-project-tag {
+  flex-shrink: 0; font-size: 9px; padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-glow-2); color: var(--violet-2);
+  margin-left: auto; white-space: nowrap;
+}
+[data-style="brutalism"] .commit-project-tag {
+  background: var(--accent); color: var(--bone, #fff); border-radius: 0;
+}
+
+/* Commits — collapsible inside project cards */
+.commit-details {
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+}
+.commit-details summary {
+  font-family: var(--font-mono); font-weight: 700; font-size: 9px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--accent); cursor: pointer; list-style: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.commit-details summary::-webkit-details-marker { display: none; }
+.commit-details summary::before { content: "▶"; font-size: 7px; transition: transform 0.15s; }
+.commit-details[open] summary::before { transform: rotate(90deg); }
+.commit-details summary:hover { opacity: 0.8; }
+.commit-details .commit-inner {
+  margin-top: 12px; display: flex; flex-direction: column;
+}
+.commit-details .ci {
+  font-family: var(--font-mono); font-size: 11px; color: var(--fg-2);
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.commit-details .ci:last-child { border-bottom: none; }
+.commit-details .ch { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+.commit-details .cm { color: var(--fg-2); line-height: 1.5; }
+[data-style="brutalism"] .commit-details .ch { color: var(--violet); }
+[data-style="brutalism"] .commit-details .cm { color: var(--gray-900, #0d0d0d); }
+
+.no-data {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--fg-3); font-style: italic; padding: 8px 0;
+}
+
+/* AI sections */
+.ai-summary-text {
+  font-size: 15px; line-height: var(--lh-loose); color: var(--fg-1);
+}
+.ai-block { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.ai-label {
+  font-family: var(--font-mono); font-weight: 700; font-size: 9px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase;
+  color: var(--fg-3); margin-bottom: 8px;
+}
+.ai-text { font-size: 13px; line-height: 1.65; color: var(--fg-2); }
+.ai-text h2, .ai-text h3 {
+  font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--fg-3); margin: 16px 0 6px; font-family: var(--font-mono);
+}
+.ai-text h2:first-child, .ai-text h3:first-child { margin-top: 0; }
+.ai-text p { margin-bottom: 10px; }
+.ai-text p:last-child { margin-bottom: 0; }
+.ai-text strong { color: var(--fg); font-weight: 700; }
+.ai-text ul { margin: 6px 0 10px 16px; display: flex; flex-direction: column; gap: 6px; }
+.ai-text ul:last-child { margin-bottom: 0; }
+.ai-text li { line-height: 1.55; }
+.ai-text li strong { color: var(--fg-1); }
+.ai-unavail { color: var(--fg-3); font-style: italic; font-size: 13px; }
+
+/* Footer */
+.page-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 32px; border-top: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--ls-wide); text-transform: uppercase; color: var(--fg-3);
+}
+.page-footer .slash { color: var(--accent); }
+
+.rdct{background:#0c0c0e;color:#0c0c0e;border-radius:3px;padding:0 3px;letter-spacing:-2px;font-family:monospace;}
+</style>
+</head>
+<body>
+<div class="stripe-top"></div>
+
+<div class="topbar">
+  <div class="wordmark">devlog <b>//</b></div>
+  <button class="toggle"
+    onclick="document.body.dataset.style = document.body.dataset.style === 'brutalism' ? '' : 'brutalism'">
+    Toggle Mode
+  </button>
+</div>
+
+<div class="wrap">
+
+  <header class="page-header">
+    <div class="eyebrow">MONTH ENDING 2026-07-03</div>
+    <h1>Work Journal<span class="accent">.</span></h1>
+  </header>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="n">829</div>
+      <div class="l">Sessions</div>
+    </div>
+    <div class="stat">
+      <div class="n">1,025</div>
+      <div class="l">Human Prompts</div>
+    </div>
+    <div class="stat">
+      <div class="n">10,986</div>
+      <div class="l">Tool Calls</div>
+    </div>
+    <div class="stat">
+      <div class="n">372h 37m</div>
+      <div class="l">AI Session Time</div>
+      <div class="note">accumulated · may exceed 24h/day</div>
+    </div>
+    <div class="stat">
+      <div class="n">319</div>
+      <div class="l">Commits</div>
+    </div>
+    <div class="stat">
+      <div class="n">23</div>
+      <div class="l">Projects</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Top Tools</div>
+    <div class="tool-tags"><span class="tag top-tag"><span class="dot">●</span> Bash<b class="tag-count">3,895</b></span>
+<span class="tag"><span class="dot">●</span> Read<b class="tag-count">3,320</b></span>
+<span class="tag"><span class="dot">●</span> Write<b class="tag-count">871</b></span>
+<span class="tag"><span class="dot">●</span> Edit<b class="tag-count">752</b></span>
+<span class="tag"><span class="dot">●</span> Agent<b class="tag-count">284</b></span>
+<span class="tag"><span class="dot">●</span> Grep<b class="tag-count">261</b></span>
+<span class="tag"><span class="dot">●</span> StructuredOutput<b class="tag-count">221</b></span>
+<span class="tag"><span class="dot">●</span> TaskUpdate<b class="tag-count">154</b></span></div>
+  </div>
+
+  <div class="section"><div class="section-label">AI Summary</div><div class="card"><div class="card-stripe"></div><div class="ai-summary-text ai-text"><p>★ Insight ─────────────────────────────────────</p>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<p>─────────────────────────────────────────────────</p>
+<h2>Work Journal — Month Ending 2026-07-03</h2>
+<p><strong>Narrative:</strong></p>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<p><strong>Performance bullets:</strong></p>
+<ul>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li>Built a knowledge and hybrid-search layer (pgvector schema, RLS-locked tables, embedding backfill, RRF search) from design spec through CLI and MCP-runbook delivery, enabling durable retrieval over ingested content.</li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li>Maintained engineering discipline at scale — CI-green lint passes, security-focused fixes (HTML escaping, LIKE-metacharacter escaping, RLS enforcement), and consistent design-spec/implementation-plan/ADR documentation across nearly a dozen active projects.</li>
+</ul></div></div></div>
+
+  <div class="section"><div class="section-label">Projects — 23 active this period</div><div class="projects-grid"><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">agentops-core</div><div class="pc-sessions">141</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">151</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">2,036</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">4475m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">67</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>67 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">e69dd1a9</span><span class="cm">chore: initialize AgentOps Core project</span></div><div class="ci"><span class="ch">4aeda126</span><span class="cm">docs: define initial AgentOps data model</span></div><div class="ci"><span class="ch">ea16fac8</span><span class="cm">feat: add initial PostgreSQL schema</span></div><div class="ci"><span class="ch">ce3624ff</span><span class="cm">feat: complete initial AgentOps database schema</span></div><div class="ci"><span class="ch">13f3179b</span><span class="cm">feat: complete local database foundation</span></div><div class="ci"><span class="ch">4d37ab73</span><span class="cm">feat: add FastAPI ingestion foundation</span></div><div class="ci"><span class="ch">d18774d4</span><span class="cm">docs: add Claude Code capture design spec</span></div><div class="ci"><span class="ch">4dc01bb4</span><span class="cm">docs: add Claude Code capture implementation plan</span></div><div class="ci"><span class="ch">2110f461</span><span class="cm">feat: add read-only GET /repositories endpoint</span></div><div class="ci"><span class="ch">235c4c91</span><span class="cm">feat: scaffold capture package + git remote canonicalization</span></div><div class="ci"><span class="ch">47a12fa7</span><span class="cm">feat: resolve cwd to registered repository via git remote</span></div><div class="ci"><span class="ch">ba359703</span><span class="cm">feat: discover Claude Code transcript files</span></div><div class="ci"><span class="ch">c86b68a4</span><span class="cm">feat: normalize transcript lines to meaningful events</span></div><div class="ci"><span class="ch">89ef682b</span><span class="cm">feat: synthesize session_started/session_ended events</span></div><div class="ci"><span class="ch">3728f50a</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">b95ea961</span><span class="cm">fix: post_event returns in-contract status; test transport-error retry</span></div><div class="ci"><span class="ch">e74b9ea1</span><span class="cm">feat: add capture run report</span></div><div class="ci"><span class="ch">693cdafe</span><span class="cm">feat: wire Claude Code capture CLI end-to-end</span></div><div class="ci"><span class="ch">0375ce9c</span><span class="cm">fix: count post errors without aborting; read each transcript once</span></div><div class="ci"><span class="ch">07a77ce7</span><span class="cm">docs: document Claude Code capture usage + ADR 0003</span></div><div class="ci"><span class="ch">6ac794b7</span><span class="cm">fix: harden build_registry, freeze RepoResolution, close test gaps</span></div><div class="ci"><span class="ch">f0f4c02a</span><span class="cm">fix: stop redacting numeric token counts; use canonical session id for boundaries</span></div><div class="ci"><span class="ch">7f16f497</span><span class="cm">feat: catch-all capture for non-git-remote sessions</span></div><div class="ci"><span class="ch">fcba28c8</span><span class="cm">fix: inject canonical cwd/branch so runs preserve the real folder</span></div><div class="ci"><span class="ch">d7028f95</span><span class="cm">docs: add sub-agent capture design spec</span></div><div class="ci"><span class="ch">fba979b1</span><span class="cm">docs: add sub-agent capture implementation plan</span></div><div class="ci"><span class="ch">cdbb1289</span><span class="cm">feat: discover nested sub-agent transcripts</span></div><div class="ci"><span class="ch">ac038186</span><span class="cm">feat: sub-agent files use parent session id, skip boundaries</span></div><div class="ci"><span class="ch">4634acd2</span><span class="cm">feat: merge sub-agent events into parent run; report count</span></div><div class="ci"><span class="ch">8179c121</span><span class="cm">docs: document sub-agent capture + ADR 0004</span></div><div class="ci"><span class="ch">d71f0715</span><span class="cm">fix: derive sub-agent session_id from path even when line omits sessionId</span></div><div class="ci"><span class="ch">a411fc5a</span><span class="cm">docs: add capture-polish design spec (repo write endpoint + reclassify)</span></div><div class="ci"><span class="ch">35aaa759</span><span class="cm">docs: add capture-polish implementation plan</span></div><div class="ci"><span class="ch">1701e270</span><span class="cm">feat: POST /repositories write endpoint with idempotent upsert</span></div><div class="ci"><span class="ch">85ecef39</span><span class="cm">feat: cwd override map loader and longest-prefix matcher</span></div><div class="ci"><span class="ch">76dbfa9f</span><span class="cm">fix: idiomatic UTF-8 tomllib.load + typed match_override signature</span></div><div class="ci"><span class="ch">c7acf2ae</span><span class="cm">feat: resolve no-remote cwds via the override map</span></div><div class="ci"><span class="ch">b2175790</span><span class="cm">feat: reclassify command re-points catch-all runs via cwd map</span></div><div class="ci"><span class="ch">207d7953</span><span class="cm">docs: seed reclassification reference data + ADR 0005 + README</span></div><div class="ci"><span class="ch">f647eb6e</span><span class="cm">fix: escape LIKE metacharacters in reclassify; strengthen upsert/reclassify tests</span></div><div class="ci"><span class="ch">549b09d0</span><span class="cm">docs: add run-timestamps design spec (started_at/ended_at from event time)</span></div><div class="ci"><span class="ch">16487c6c</span><span class="cm">docs: add run-timestamps implementation plan</span></div><div class="ci"><span class="ch">4cb7b9ba</span><span class="cm">feat: fold event occurred_at into run started_at/ended_at on ingest</span></div><div class="ci"><span class="ch">925d00de</span><span class="cm">feat: backfill_run_time_bounds + app.maintenance command</span></div><div class="ci"><span class="ch">70b33980</span><span class="cm">docs: document run timestamps + app.maintenance backfill</span></div><div class="ci"><span class="ch">113373bb</span><span class="cm">test: roll back backfill tests so they don&#x27;t mutate shared DB; tighten annotations</span></div><div class="ci"><span class="ch">dc412ca6</span><span class="cm">docs: add read-surface design spec (query API + token derivation)</span></div><div class="ci"><span class="ch">a662c24e</span><span class="cm">docs: add read-surface implementation plan</span></div><div class="ci"><span class="ch">9d1eabe8</span><span class="cm">feat: backfill_usage_metrics + maintenance subcommands</span></div><div class="ci"><span class="ch">373ebcce</span><span class="cm">feat: incrementally record per-event token usage on ingest</span></div><div class="ci"><span class="ch">31ba9781</span><span class="cm">feat: GET /runs read endpoint (filter + paginate over run_overview)</span></div><div class="ci"><span class="ch">b44eca6c</span><span class="cm">feat: GET /runs/{run_id} + GET /overview read endpoints</span></div><div class="ci"><span class="ch">4477dd94</span><span class="cm">docs: document the read API + backfill-usage command</span></div><div class="ci"><span class="ch">d36d6f1c</span><span class="cm">docs: add verification-ui design spec (minimal read-only UI over the read API)</span></div><div class="ci"><span class="ch">8d7bdfe6</span><span class="cm">docs: add verification-ui implementation plan</span></div><div class="ci"><span class="ch">2d1fd524</span><span class="cm">feat: GET /runs/{run_id}/events read endpoint</span></div><div class="ci"><span class="ch">8b1399a8</span><span class="cm">feat: mount minimal verification UI at /ui</span></div><div class="ci"><span class="ch">ed700165</span><span class="cm">feat: verification UI overview + runs list with filters</span></div><div class="ci"><span class="ch">ecac2ece</span><span class="cm">feat: verification UI run detail + events drill-down</span></div><div class="ci"><span class="ch">c97b5945</span><span class="cm">feat: verification UI per-project token chart</span></div><div class="ci"><span class="ch">af066d7f</span><span class="cm">docs: document the verification UI + manual smoke checklist</span></div><div class="ci"><span class="ch">f232a902</span><span class="cm">docs: add project status document (setup, progress, challenges, plan)</span></div><div class="ci"><span class="ch">a055ff99</span><span class="cm">docs: add git commit reconciliation design spec</span></div><div class="ci"><span class="ch">77d7b0c2</span><span class="cm">docs: add git reconciliation implementation plan</span></div><div class="ci"><span class="ch">601fb4e3</span><span class="cm">feat: add git log query function + commit cleanup in conftest</span></div><div class="ci"><span class="ch">ca2544bd</span><span class="cm">docs: update STATUS.md — git reconciliation progress, pick-up instructions</span></div><div class="ci"><span class="ch">f53edb0a</span><span class="cm">chore: prepare repo for public release</span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the commit history for agentops-core this month:</p>
+<p><strong>AgentOps Core — July 2026</strong></p>
+<p>Built out the full ingestion-to-verification pipeline for capturing AI coding sessions: a PostgreSQL-backed FastAPI service that discovers Claude Code (and sub-agent) transcripts, normalizes them into events, and exposes a read API and minimal UI for inspecting runs. This turns raw local transcript files into a queryable record of session activity — repo attribution, timestamps, token usage, and event drill-down — culminating in a git-commit reconciliation feature and prep for public release. 141 sessions and 67 commits went into hardening this from a bare schema into an end-to-end observability tool for AI-assisted development.</p>
+<p>Key achievements:</p>
+<ul>
+<li><strong>End-to-end capture pipeline</strong>: git-remote-based repo resolution, transcript discovery (including nested sub-agent transcripts), retry-hardened ingestion API, and a catch-all + cwd-override path for sessions without a git remote, so no session is silently dropped.</li>
+<li><strong>Read surface + verification UI</strong>: `GET /runs`, `/runs/{id}`, `/runs/{id}/events`, and `/overview` endpoints backed by incremental token-usage tracking and run time-bounds derived from event timestamps, plus a lightweight `/ui` for browsing runs and per-project token charts without a separate frontend.</li>
+<li><strong>Data integrity tooling</strong>: idempotent repository upserts, a reclassification command to re-point catch-all runs once their real repo is known, and `app.maintenance` backfill commands for usage metrics and run time bounds — closing gaps in historical data as the schema evolved.</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">███████████████████████</span></div><div class="pc-sessions">137</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">198</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">1,801</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">3043m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">90</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>90 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">41e42a0e</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">0517b025</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">f7ef40ea</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">37bd3575</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">763ad392</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e93141e0</span><span class="cm"><span class="rdct">█████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">62128bd2</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">485a04da</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">9142fbf6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e57e6501</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">f5f5a0fa</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">ffcec6e7</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">37513832</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">196171bc</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">ef3cae05</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">87f952aa</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">77264c5b</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">347f8868</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">d94097b1</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">0fe004f6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7969bea1</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">bec2a1a9</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">00cf2ba5</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a3602bb0</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">94a49d43</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c572a41e</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">64957709</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">dc497714</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4a7cd727</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c2de43ad</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">407cb6a1</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">32dda1e3</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a500cd6f</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a74f7ecb</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4d2ee27c</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">6293104a</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c9560ef3</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">545a1c61</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a5e3ae35</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4ffc4a3b</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">b5b4172f</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">86f082c8</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e9ecc971</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4ec1e8d7</span><span class="cm"><span class="rdct">███████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">50c5dd55</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c8264c07</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a14b8e75</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">35b0bcbb</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">08494e34</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4db564ba</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">61d5c9df</span><span class="cm"><span class="rdct">████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">fcb4f380</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">011ea4f5</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">30ae5981</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c7ce38f6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">ceaa2280</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7877cf43</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">61de7e74</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">5ae93eac</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">47c1e606</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">52530197</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">99693b98</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">9634bb85</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">579482f5</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">59b580ef</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c3fa6da4</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7692321a</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">cc77ba53</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">1e5d9e69</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">cf8a06bd</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">be4db6a6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">f8bdb57a</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">283308ba</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">1a9d95e0</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">5511e903</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7f93a5f0</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">640744d3</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">48e8cc74</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a059a0cb</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">ed5e9835</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">46e810a9</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">d0c69fb4</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">954a3c97</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">52845ac8</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">400ba8dc</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7e4e24a8</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4146e5ef</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7210a605</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">75a3169c</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">d5167632</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><span class="rdct">██████████████████████████████████████████████</span></p>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<p><strong>Key achievements:</strong></p>
+<ul>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">ai-work-journal</div><div class="pc-sessions">98</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">102</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">420</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">160m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">29</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>29 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">7916e702</span><span class="cm">Add devlog work-journal v1 design spec</span></div><div class="ci"><span class="ch">c25aea89</span><span class="cm">Add devlog v1 implementation plan</span></div><div class="ci"><span class="ch">08982f06</span><span class="cm">feat: package scaffold + pure event helpers</span></div><div class="ci"><span class="ch">eeb1e709</span><span class="cm">feat: path resolution and Paths</span></div><div class="ci"><span class="ch">cf2d781e</span><span class="cm">feat: Claude session parser with day bucketing and prompt filtering</span></div><div class="ci"><span class="ch">7c37affd</span><span class="cm">fix: count encoding-corrupt lines as skipped; clarify cwd; test duration</span></div><div class="ci"><span class="ch">8f606205</span><span class="cm">feat: git log parser with delimiter-safe commit events</span></div><div class="ci"><span class="ch">c5311958</span><span class="cm">feat: provisional defensive Codex rollout parser</span></div><div class="ci"><span class="ch">0dad1fc0</span><span class="cm">feat: durable store with idempotent append and rebuildable index</span></div><div class="ci"><span class="ch">dfa40848</span><span class="cm">feat: incremental ingest cursors</span></div><div class="ci"><span class="ch">8beb95cf</span><span class="cm">feat: ingest orchestration with discovery and idempotency</span></div><div class="ci"><span class="ch">e3e28481</span><span class="cm">fix: mark strict param as TODO; add __future__ annotations to test_ingest</span></div><div class="ci"><span class="ch">1da608b5</span><span class="cm">feat: injectable local-CLI engine wrapper (claude/codex)</span></div><div class="ci"><span class="ch">45f1f817</span><span class="cm">feat: deterministic stats and markdown report with soft AI section</span></div><div class="ci"><span class="ch">32665c75</span><span class="cm">fix: correct daily_report signature, add file-save, add future annotations</span></div><div class="ci"><span class="ch">5c69ce51</span><span class="cm">feat: argparse CLI (ingest/report/rebuild/status) + entrypoint</span></div><div class="ci"><span class="ch">bbd1c040</span><span class="cm">docs: README with usage and test instructions</span></div><div class="ci"><span class="ch">ef96f0af</span><span class="cm">fix: add __future__ annotations to __main__ and test_cli</span></div><div class="ci"><span class="ch">18bde131</span><span class="cm">chore: add pyproject.toml with devlog entry point</span></div><div class="ci"><span class="ch">f27cc6f3</span><span class="cm">feat: --detailed flag adds per-project breakdown with scoped stats and optional AI explanation</span></div><div class="ci"><span class="ch">b99ab24a</span><span class="cm">feat: --html flag generates styled HTML report using Purple Studio design system</span></div><div class="ci"><span class="ch">5ae7dac4</span><span class="cm">chore: add .gitignore and project STATUS doc</span></div><div class="ci"><span class="ch">f220138c</span><span class="cm">docs: add complete Claude session summary</span></div><div class="ci"><span class="ch">ff8344c3</span><span class="cm">feat: add --month flag for 30-day report window</span></div><div class="ci"><span class="ch">69e9f14d</span><span class="cm">chore: prep for public release — README, LICENSE, gitignore, STATUS</span></div><div class="ci"><span class="ch">2cdf9c35</span><span class="cm">docs: add What&#x27;s next section to README</span></div><div class="ci"><span class="ch">a2d1705a</span><span class="cm">feat: project cards sorted by sessions desc, no commit line items</span></div><div class="ci"><span class="ch">c223801d</span><span class="cm">feat: project cards — collapsible commits, descending sort by sessions</span></div><div class="ci"><span class="ch">8480b561</span><span class="cm">feat: render AI text as HTML, project cards in horizontal scroll row</span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><strong>What was built:</strong> This month, ai-work-journal moved from design spec to a fully working local devlog tool — a pure-Python pipeline that parses Claude and Codex CLI session logs plus git history, stores them in an idempotent, incrementally-updatable local store, and turns them into deterministic markdown/HTML reports. It matters because it gives a zero-dependency, privacy-preserving way to see actual work activity (sessions, prompts, commits) across projects without relying on any external API, and it&#x27;s now packaged and documented for public release.</p>
+<ul>
+<li>Built the core ingest pipeline end-to-end: Claude/Codex session parsers, git log parser, durable idempotent store with rebuildable index, and incremental cursors — the hard, unglamorous plumbing that makes everything else possible.</li>
+<li>Shipped a full-featured CLI (`ingest`/`report`/`rebuild`/`status`) with a `--detailed` per-project breakdown, a `--month` 30-day window, and an `--html` mode rendering reports through the Purple Studio design system.</li>
+<li>Prepped and shipped the project for public release (README, LICENSE, STATUS doc, pyproject entry point) and refined the report&#x27;s project-card UI (sorted by sessions, collapsible commits, horizontal scroll layout).</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">ai-native-plans</div><div class="pc-sessions">83</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">97</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">1,181</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">1878m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based solely on the provided metrics (no commit messages, no code diffs available), here&#x27;s the entry:</p>
+<p><strong>Summary:</strong> This month centered on sustained, deep-dive work on ai-native-plans — 83 sessions and nearly 1,900 active minutes went into iterative exploration and refinement rather than shipped code, with zero commits recorded. The heavy tool-call volume relative to prompt count (1,181 tool calls across just 97 prompts) suggests each session did substantial background work per turn — reading, searching, or drafting — rather than quick one-off exchanges.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Sustained high engagement across 83 distinct sessions, averaging over 22 minutes of active time per session</li>
+<li>Heavy per-prompt tool usage (avg. ~12 tool calls per prompt), indicating thorough, investigative work rather than surface-level responses</li>
+<li>No commits landed this period — work stayed in planning/exploration mode rather than producing committed artifacts</li>
+</ul>
+<p>★ Insight ─────────────────────────────────────</p>
+<p>Since this request only supplied aggregate counters (sessions, prompts, tool calls, active time, commits) with no commit messages or diffs, I couldn&#x27;t describe <em>what</em> was actually built — only infer <em>how</em> the work happened from the shape of the numbers. That&#x27;s an important distinction for a devlog: metrics tell you engagement patterns (e.g., zero commits + high tool-call density often means research/planning rather than shipping), but only commit messages or file diffs tell you the substantive &quot;why it matters.&quot; If ai-native-plans is meant to get richer journal entries going forward, the generator would need to pull in commit messages (even if empty here) or session summaries as a required input, not just optional.</p>
+<p>─────────────────────────────────────────────────</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">ai-native-team</div><div class="pc-sessions">70</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">52</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">1,010</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">2566m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Since there&#x27;s no commit history or feature detail here—just usage metrics—I&#x27;ll keep the entry grounded in what the numbers actually show rather than invent feature specifics.</p>
+<p><strong>ai-native-team — month ending 2026-07-03</strong></p>
+<p>Sustained, heavy iteration on ai-native-team this month: 70 sessions and over 2,500 minutes of active work went into the project, though none of it landed as a committed change yet. The high ratio of tool calls to prompts (roughly 19 tool calls per prompt) suggests exploratory or investigative work rather than straightforward feature building — likely research, debugging, or design iteration that hasn&#x27;t converged into a shippable state.</p>
+<ul>
+<li>70 sessions logged, totaling ~43 hours of active engagement — a significant sustained investment for a single month</li>
+<li>1,010 tool calls across just 52 prompts, indicating deep, multi-step exploration per request rather than quick one-off asks</li>
+<li>Zero commits landed despite the volume of work, meaning the effort is still in-progress or pre-commit (exploration, prototyping, or a blocked line of work worth checking in on)</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">ai-native-work-brain</div><div class="pc-sessions">58</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">43</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">645</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">534m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">66</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>66 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">aadc9750</span><span class="cm">Add V1 design spec for AI-Native RevOps Work Brain</span></div><div class="ci"><span class="ch">31288295</span><span class="cm">Stop tracking local Claude Code settings</span></div><div class="ci"><span class="ch">f5cf7f4d</span><span class="cm">Add Phase 1 implementation plan (foundation &amp; schema)</span></div><div class="ci"><span class="ch">b160b746</span><span class="cm">chore: scaffold Next.js app (TS, Tailwind, app router)</span></div><div class="ci"><span class="ch">57762ae9</span><span class="cm">chore: add Vitest test harness</span></div><div class="ci"><span class="ch">1a42d646</span><span class="cm">feat: add fail-fast environment config module</span></div><div class="ci"><span class="ch">96291a54</span><span class="cm"><span class="rdct">█████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">3d8ff4ce</span><span class="cm">chore: initialize local Supabase project</span></div><div class="ci"><span class="ch">93d71baf</span><span class="cm">feat(db): enable pgvector extension</span></div><div class="ci"><span class="ch">d4170e2a</span><span class="cm">feat(db): add contexts table</span></div><div class="ci"><span class="ch">dc18823d</span><span class="cm">feat(db): add sources table</span></div><div class="ci"><span class="ch">a8f35a0e</span><span class="cm">feat(db): add documents table with idempotency constraint</span></div><div class="ci"><span class="ch">149a43b0</span><span class="cm">feat(db): add knowledge_objects table with hybrid-search indexes</span></div><div class="ci"><span class="ch">c845c08d</span><span class="cm">feat(db): add ko_feedback table (test-phase feedback layer)</span></div><div class="ci"><span class="ch">dd50c12c</span><span class="cm">feat(db): add sync_state table (ingestion cursor)</span></div><div class="ci"><span class="ch">7b671d28</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">29917e29</span><span class="cm">feat(db): enable and force RLS on all tables, revoke anon/authenticated</span></div><div class="ci"><span class="ch">916457f8</span><span class="cm">test(db): verify schema, seed, and idempotency constraint</span></div><div class="ci"><span class="ch">ca1103b5</span><span class="cm">chore(db): generate TypeScript types from schema</span></div><div class="ci"><span class="ch">4d3571f5</span><span class="cm">fix: address final code review (confidence type, gitignore, test guard)</span></div><div class="ci"><span class="ch">4f10eeef</span><span class="cm">docs: add Phase 2 ingestion implementation plan</span></div><div class="ci"><span class="ch">a9383f51</span><span class="cm">feat(db): add updated_at triggers + shared test db helper</span></div><div class="ci"><span class="ch">bdccb6ef</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">f5d7ef57</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">0ce95174</span><span class="cm">feat(ingestion): rule-based context routing with fallback</span></div><div class="ci"><span class="ch">aa01a846</span><span class="cm">feat(db): seed context routing rules</span></div><div class="ci"><span class="ch">ee9d0816</span><span class="cm">feat(ingestion): idempotent raw document upsert</span></div><div class="ci"><span class="ch">6ed3b725</span><span class="cm">feat(ingestion): durable high-water-mark cursor</span></div><div class="ci"><span class="ch">ebe32039</span><span class="cm">feat(ingestion): sync orchestrator (route, upsert, advance-on-success)</span></div><div class="ci"><span class="ch">afb25639</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">89c95c36</span><span class="cm">feat(ingestion): test-phase MCP runner script + runbook</span></div><div class="ci"><span class="ch">d4188cb8</span><span class="cm">fix(ingestion): make fetchMeetingsSince inclusive (&gt;=) per port contract</span></div><div class="ci"><span class="ch">c808cf3d</span><span class="cm">docs: add meeting inclusion gate design spec</span></div><div class="ci"><span class="ch">86d26e6a</span><span class="cm">docs: add meeting inclusion gate implementation plan</span></div><div class="ci"><span class="ch">92fed0b9</span><span class="cm">feat(ingestion): preserve attendee display names through normalization</span></div><div class="ci"><span class="ch">99eef700</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">701e904e</span><span class="cm">feat(ingestion): gate meetings on inclusion before routing; report included/skipped</span></div><div class="ci"><span class="ch">099bd85d</span><span class="cm">test(ingestion): cover skip-after-failure cursor ordering</span></div><div class="ci"><span class="ch">fd658530</span><span class="cm">test(ingestion): e2e coverage for inclusion gate via fixture source</span></div><div class="ci"><span class="ch">4a925191</span><span class="cm">test(ingestion): reset cursor in e2e beforeAll for test isolation</span></div><div class="ci"><span class="ch">b9342d6a</span><span class="cm">docs(ingestion): runbook applies inclusion gate before transcript fetch</span></div><div class="ci"><span class="ch">f8a8ab6d</span><span class="cm">docs(phase-3): approved design for Knowledge (Layer 2) + hybrid search (Layer 3)</span></div><div class="ci"><span class="ch">373faf60</span><span class="cm">docs(phase-3): bite-sized TDD implementation plan (8 tasks)</span></div><div class="ci"><span class="ch">19bdac6b</span><span class="cm">feat(ingestion): account-aware inclusion gate (label + tracked accounts)</span></div><div class="ci"><span class="ch">301f1bd6</span><span class="cm">feat(knowledge): KO taxonomy types + fingerprint hashing</span></div><div class="ci"><span class="ch">7297abae</span><span class="cm">feat(knowledge): fingerprint hash-upsert for extraction</span></div><div class="ci"><span class="ch">8b61ca38</span><span class="cm">test(knowledge): exercise extraction error-marking path; tidy upsert</span></div><div class="ci"><span class="ch">e6250fdb</span><span class="cm">feat(knowledge): extraction CLI + MCP runbook</span></div><div class="ci"><span class="ch">fdfe77ac</span><span class="cm">feat(knowledge): gte-small edge function + resumable embedding backfill</span></div><div class="ci"><span class="ch">3e24f5ed</span><span class="cm">feat(knowledge): hybrid_search RRF function + search lib + CLI</span></div><div class="ci"><span class="ch">5c61cd34</span><span class="cm">feat(knowledge): feedback library + CLI</span></div><div class="ci"><span class="ch">a3cc74d9</span><span class="cm">feat(knowledge): end-to-end pipeline test + npm scripts</span></div><div class="ci"><span class="ch">11993570</span><span class="cm">fix(ingestion): update all-skipped warning to mention both gate paths</span></div><div class="ci"><span class="ch">0592e37b</span><span class="cm">docs(phase-4): multi-source ingestion design spec (Gmail + Slack + Calendar)</span></div><div class="ci"><span class="ch">653e8499</span><span class="cm">docs(phase-4): implementation plan — Gmail + Slack + Calendar adapters</span></div><div class="ci"><span class="ch">d7fd8207</span><span class="cm">feat(phase-4): migration 0011 + NormalizedDocument + extend upsertDocument</span></div><div class="ci"><span class="ch">0d83df3e</span><span class="cm">feat(phase-4): Gmail adapter + CLI runner</span></div><div class="ci"><span class="ch">3003bf53</span><span class="cm">feat(phase-4): Slack rule filter + completion detector</span></div><div class="ci"><span class="ch">fb043461</span><span class="cm">feat(phase-4): Slack adapter + CLI runner with completion tracking</span></div><div class="ci"><span class="ch">7588b223</span><span class="cm">feat(phase-4): Calendar adapter + CLI runner with video-link gate</span></div><div class="ci"><span class="ch">ad5980e5</span><span class="cm">docs(phase-4): MCP ingestion runbooks for Gmail, Slack, Calendar</span></div><div class="ci"><span class="ch">4c6ce453</span><span class="cm">test(slack): document &#x27;done&#x27; substring-match behavior in hasCompletionSignal</span></div><div class="ci"><span class="ch">9bcafc01</span><span class="cm">docs: project status — Phase 4 complete, pre-Phase-5 checkpoint</span></div><div class="ci"><span class="ch">cd0687cc</span><span class="cm">feat: headless Gmail + Calendar fetch via Google OAuth API</span></div><div class="ci"><span class="ch">fa250abb</span><span class="cm">docs: project status update — Gmail + Calendar first runs complete</span></div><div class="ci"><span class="ch">c1803787</span><span class="cm">docs: status update — extraction decision point, 819 docs pending</span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the commit history, here&#x27;s the work-journal entry for <strong>ai-native-work-brain</strong>:</p>
+<p>Built the foundational data layer and multi-source ingestion pipeline for an AI-native RevOps &quot;work brain&quot; — a system that pulls in meetings, email, Slack, and calendar events, normalizes them, and extracts searchable knowledge objects with hybrid (vector + keyword) search. This matters because it turns scattered work activity across four different tools into one queryable, deduplicated knowledge base with idempotent ingestion, so nothing gets processed twice and nothing silently falls through the cracks.</p>
+<ul>
+<li>Stood up the Supabase schema (contexts, sources, documents, knowledge_objects) with pgvector, RLS locked down on all tables, and idempotency/hash-based upsert constraints to guarantee safe re-runs</li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li>Delivered the knowledge extraction and hybrid search layer: fingerprint-based extraction with error-marking, a resumable gte-small embedding backfill, and an RRF hybrid_search function, all backed by end-to-end pipeline tests</li>
+</ul>
+<p><strong>Note:</strong> the commit list ends mid-Phase-5 with &quot;819 docs pending&quot; on extraction — worth flagging that the entry describes work through early July, not a fully closed phase.</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">bhuvanesh</div><div class="pc-sessions">50</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">49</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">0m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the data provided, this month shows activity without concrete output: 50 sessions and 49 prompts were logged, but zero tool calls, zero active development minutes, and zero commits were recorded. There&#x27;s no commit history to draw specifics from, so no features or code changes can be attributed to this period.</p>
+<p><strong>Observed activity:</strong></p>
+<ul>
+<li>50 distinct sessions initiated, averaging roughly one prompt per session</li>
+<li>No tool invocations, meaning no file edits, code execution, or file reads were recorded in these sessions</li>
+<li>No commits landed — the sessions did not result in any tracked repository changes</li>
+</ul>
+<p>If this doesn&#x27;t match what you&#x27;d expect for the month, it&#x27;s worth checking whether session/commit tracking was working correctly, since 49 prompts with zero tool calls is an unusual pattern (typically prompts trigger at least some tool use).</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">████████████████████</span></div><div class="pc-sessions">49</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">68</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">1,006</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">2418m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><span class="rdct">██████████████████████████████████████████████</span></p>
+<ul>
+<li>49 sessions totaling ~2,418 active minutes (~40 hours), indicating sustained, multi-day engagement rather than a single sitting.</li>
+<li>1,006 tool calls across 68 prompts — a high tool-call-to-prompt ratio, suggesting iterative, hands-on work rather than one-shot Q&amp;A.</li>
+<li>Zero commits recorded — worth flagging as a gap: either the work hasn&#x27;t reached a committable state, or it&#x27;s happening outside this repo&#x27;s tracked history.</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">reports</div><div class="pc-sessions">47</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">62</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">1,298</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">2989m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the provided metrics for the <strong>reports</strong> project (month ending 2026-07-03):</p>
+<p>Significant investment went into the reports project this month — 47 sessions and 62 prompts drove nearly 1,300 tool calls across almost 50 hours of active work, though none of it has landed as commits yet, suggesting this was a heavy exploration, prototyping, or debugging phase rather than a shipping one. The gap between effort and commit count is worth flagging: either the work is accumulating in an uncommitted or experimental state, or it&#x27;s research/analysis that doesn&#x27;t produce code artifacts.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Sustained deep engagement with the reports project — 47 sessions averaging ~64 minutes of active work each</li>
+<li>High tool-call volume (1,298) relative to prompt count (62) indicates each prompt triggered substantial multi-step work rather than simple one-off requests</li>
+<li>No commits recorded yet — worth checking in on whether this work is still in progress, blocked, or living outside version control</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">claude-sessions-project</div><div class="pc-sessions">29</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">18</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">304</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">267m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>★ Insight ─────────────────────────────────────</p>
+<p>This is a synthesis task, not a coding task — the instruction says &quot;based ONLY on the data below,&quot; so the constraint is deliberately avoiding invented specifics (no commit messages exist here, which is itself a signal: this was likely exploratory/interactive work rather than code-shipping work).</p>
+<p>─────────────────────────────────────────────────</p>
+<h2>claude-sessions-project — Month ending 2026-07-03</h2>
+<p>This month centered on interactive exploration rather than shipped code: 29 sessions and 267 minutes of active time went into just 18 prompts, with a heavy 304 tool calls behind them — a ratio suggesting each prompt triggered substantial multi-step investigation or iteration. No commits landed, indicating the work was either research/analysis in nature, still in-progress, or output outside version control.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Sustained engagement across 29 distinct sessions, averaging roughly 9 minutes of active work per session</li>
+<li>Ran 304 tool invocations against only 18 prompts (~17 tool calls per prompt), reflecting deep, exploratory tool use per request</li>
+<li>No code committed this period — work appears to be investigative rather than feature-shipping</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">bhuvanesh-content-intelligence</div><div class="pc-sessions">17</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">91</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">575</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">2668m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">1</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>1 commit — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">333fa3ef</span><span class="cm">Initial commit: content intelligence engine + production system</span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the session data for <strong>bhuvanesh-content-intelligence</strong> (17 sessions, 91 prompts, 575 tool calls, ~44.5 hours active, 1 commit):</p>
+<p>---</p>
+<p><strong>Summary:</strong></p>
+<p>Built a content intelligence engine as a production system, consolidated into a single initial commit despite substantial iterative development — 17 sessions and nearly 45 hours of active work went into shaping it before the first commit landed. The scale of tool use (575 calls) relative to a single commit suggests heavy exploration, testing, and refinement happened before the codebase was considered commit-worthy, indicating a deliberate, high-effort build rather than a quick prototype.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Shipped the initial version of a content intelligence engine as a production-ready system</li>
+<li>Sustained 17 working sessions and ~91 prompts of iterative development to reach a stable, committable state</li>
+<li>Invested ~44.5 hours of active engineering time refining the system prior to its first commit</li>
+</ul>
+<p>---</p>
+<p>Note: with only one commit message to go on, I kept this high-level — I don&#x27;t have visibility into the specific features or architecture of the content intelligence engine itself.</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">███████████████████████</span></div><div class="pc-sessions">13</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">7</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">130</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">11m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">11</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>11 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">4a90f1cd</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">13faf1f6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">cc0f568b</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a4477e5f</span><span class="cm"><span class="rdct">████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7e795143</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">00af788b</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">3bf96120</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">334e39df</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e199580c</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">4297ded0</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a3b6a6d4</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><h2><span class="rdct">██████████████████████████████████████████████</span></h2>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<ul>
+<li>Extracted `client_dashboard` as an installable, independently-testable package (rewritten namespace, dedicated test suite, independence test)</li>
+<li>Replaced the Anthropic API integration with a Claude-in-the-loop narrative generation approach</li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">bhuvanesh-content-studio</div><div class="pc-sessions">11</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">20</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">76</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">87m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">11</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>11 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">f8cb3470</span><span class="cm">Initial commit — social content creation pipeline</span></div><div class="ci"><span class="ch">d8d72dc9</span><span class="cm">Add README with pipeline overview and setup instructions</span></div><div class="ci"><span class="ch">d928260d</span><span class="cm">Add purple design system, hustle proposals, and PDF tooling</span></div><div class="ci"><span class="ch">ca1081dd</span><span class="cm">Update CLAUDE.md — document hustle/ folder and dual-track repo structure</span></div><div class="ci"><span class="ch">f6cb1468</span><span class="cm">Align proposal-designer output paths with hustle/ convention</span></div><div class="ci"><span class="ch">e7a8c8f8</span><span class="cm">Sync bhuvanesh-linkedin brand profile with positioning synthesis</span></div><div class="ci"><span class="ch">7784c515</span><span class="cm">Add The Bridge logo — suspension-span mark + lockups</span></div><div class="ci"><span class="ch">b9ce7f5f</span><span class="cm">Wire The Bridge logo path into CLAUDE.md</span></div><div class="ci"><span class="ch">7104e65c</span><span class="cm">Add dedicated avatar mark (filled terracotta roundel)</span></div><div class="ci"><span class="ch">3749f230</span><span class="cm">Archive The Bridge logo design exploration</span></div><div class="ci"><span class="ch">2af1d16b</span><span class="cm">Add The Bridge — Build Together w/ Claude Code (Session 02) assets</span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Bhuvanesh spent the month building out <strong>bhuvanesh-content-studio</strong>, a dual-track repo pairing a social content creation pipeline with a growing library of brand/design assets — including the purple design system, hustle proposal tooling, and &quot;The Bridge&quot; brand identity (logo, avatar mark, and lockups). The work shows a shift from pure pipeline mechanics toward brand and positioning assets, suggesting the content studio is now also serving as a design/branding workspace alongside its original content-generation purpose.</p>
+<p><strong>Key achievements:</strong></p>
+<ul>
+<li>Stood up the core social content pipeline with documented setup (initial commit + README), then layered in a purple design system and PDF tooling alongside hustle proposal generation</li>
+<li>Developed &quot;The Bridge&quot; brand identity end-to-end: suspension-span logo mark, lockups, a dedicated terracotta avatar roundel, and session-based build assets, with design exploration properly archived</li>
+<li>Kept CLAUDE.md and repo conventions in sync as the structure evolved — documenting the hustle/ folder, aligning proposal-designer output paths, and syncing the LinkedIn brand profile with positioning work</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">█████████████████████</span></div><div class="pc-sessions">10</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">13</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">12</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">18m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">39</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>39 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">e355b5a0</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7ce8c769</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">fb962efd</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">33b987a2</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">5e29b83b</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">fa9b4b25</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">97663038</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">f5fabef1</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">c626db0f</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e232232d</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a3101d15</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">0cf6f4a6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e7542e6d</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">883594cf</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">dacb4ad2</span><span class="cm"><span class="rdct">████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">2cd1a36c</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">fbafb38e</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">acee7098</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">e4ca7e34</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">101f2ddc</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">fbbd5fb8</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">768e244d</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">63af170c</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">aa8b5090</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">2eb74f82</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">3de04efc</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">f62eef22</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">091aa322</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7e3d6d82</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">7bcda01e</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">5b71aadc</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">66f1e4ff</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">3a33b722</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">a5faab47</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">eba4e6c6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">1447a768</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">667d8b42</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">03b47d97</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">6b763781</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the commit history and session data, here&#x27;s the work journal entry:</p>
+<h2><span class="rdct">█████████████████████████████████</span></h2>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<p><strong>Key achievements:</strong></p>
+<ul>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+<li><span class="rdct">██████████████████████████████████████████████</span></li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">█████████████████████</span></div><div class="pc-sessions">3</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">17</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">243</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">788m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">3</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>3 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">cc748f42</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">250c283e</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">308cd0a6</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><span class="rdct">█████████████████████████████████</span></p>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<ul>
+<li>Shipped the initial design system as the project&#x27;s foundation commit</li>
+<li>Built a reusable carousel export pipeline, fixing a DPR/black-margin rendering bug</li>
+<li>Cleaned up repo hygiene by gitignoring generated PNG/PDF exports</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">███████████████</span></div><div class="pc-sessions">2</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">9</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">101</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">78m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><span class="rdct">██████████████████████████████████████████████</span></p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Conducted 2 focused work sessions comprising 9 prompts to iterate on the proposal</li>
+<li>Performed substantial tool-driven work (101 tool calls) suggesting significant back-and-forth refinement or research</li>
+<li>No commits were finalized this period — work likely remains in draft/exploration stage</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">ai-native-workspace</div><div class="pc-sessions">2</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">7</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">34</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">64m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the activity data, here&#x27;s the journal entry for <strong>ai-native-workspace</strong> (period ending 2026-07-03):</p>
+<p><strong>Summary:</strong> This was a light, exploratory period for the project — two short working sessions totaling about an hour of active time, with no commits landed. The activity pattern (34 tool calls across just 7 prompts) points to investigation or troubleshooting rather than feature-building, meaning this stretch likely represents early-stage exploration or in-progress work that hasn&#x27;t yet been committed.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Completed 2 working sessions (~64 minutes of active time) engaging with the project</li>
+<li>Ran 34 tool calls across 7 prompts, indicating a research/investigation-heavy session rather than direct code output</li>
+<li>No commits were made this period — any resulting work remains uncommitted or was purely exploratory</li>
+</ul>
+<p>Note: with zero commits and no commit messages available, I avoided speculating on <em>what</em> was investigated — the underlying data doesn&#x27;t specify it.</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">█████████████████</span></div><div class="pc-sessions">1</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">6</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">4</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">12m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><span class="rdct">█████████████████████████████</span></p>
+<p><span class="rdct">██████████████████████████████████████████████</span></p>
+<ul>
+<li>Ran one focused session (6 prompts, 4 tool calls) scoping or investigating something in the project</li>
+<li>No code changes were committed during this period</li>
+<li>Work stayed at the exploration stage; next session would need to pick up with concrete changes if this area is still a priority</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">██████</span></div><div class="pc-sessions">1</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">9</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">41</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">109m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Based on the data given, there&#x27;s no commit history or messages to draw specifics from — just session/activity metrics. Here&#x27;s the entry:</p>
+<p><strong>Hustle — July 2026</strong></p>
+<p>A single focused session (109 minutes active, 9 prompts, 41 tool calls) went into hustle this month, though no commits landed yet — the work is still in progress or was exploratory/investigative in nature rather than shipping code.</p>
+<ul>
+<li>Sustained a long single-session engagement (109 min) rather than quick check-ins, suggesting deeper exploration or setup work</li>
+<li>High tool-call density (41 calls across 9 prompts, ~4.5 per prompt) points to iterative, hands-on work rather than pure discussion</li>
+<li>No commits recorded yet — next session should confirm whether this work is queued to land or was purely exploratory</li>
+</ul>
+<p>Note: I couldn&#x27;t find specifics about <em>what</em> was built since no commit messages were available — if you want a more concrete entry, point me to the session transcript or diff and I can pull real details from there.</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">linkedin-content-packages</div><div class="pc-sessions">1</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">2</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">6</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">8m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Since there are no commit messages and minimal activity, I&#x27;ll keep this honest and light rather than invent specifics.</p>
+<h2>linkedin-content-packages — Month ending 2026-07-03</h2>
+<p>Light exploratory work this month on linkedin-content-packages: a single short session (about 8 minutes active) involved two prompts and six tool calls, with no commits landed. The work appears to have been investigative rather than implementation — laying groundwork or scoping something out before committing changes.</p>
+<ul>
+<li>Ran a focused single session touching the project (6 tool calls across 2 prompts)</li>
+<li>No code was committed during this period — work stayed at the exploration/investigation stage</li>
+<li>Total active time was brief (~8 min), suggesting a quick check-in rather than a deep work block</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">10-platform</div><div class="pc-sessions">1</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">0</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">2m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Given the data for <strong>10-platform</strong> this period: 1 session, 0 prompts, 0 tool calls, ~2 minutes of active time, and no commits — there&#x27;s nothing substantive to report. The session was opened but no work was actually done or logged against this project.</p>
+<p><strong>Summary:</strong> No meaningful development activity occurred on 10-platform during this period; a single session was briefly opened (~2 min) with no prompts, tool calls, or commits recorded.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>(None — session had no recorded activity beyond being opened)</li>
+</ul>
+<p>I don&#x27;t want to fabricate accomplishments here — if there&#x27;s a commit history or work you know happened outside this logging window, let me know and I can fold that in instead.</p></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow"><span class="rdct">███████████</span></div><div class="pc-sessions">1</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">1</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">23</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">58m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">2</div><div class="ps-k">Commits</div></div></div><details class="commit-details"><summary>2 commits — click to expand</summary><div class="commit-inner"><div class="ci"><span class="ch">fe379008</span><span class="cm"><span class="rdct">██████████████████████████████████████████████</span></span></div><div class="ci"><span class="ch">05a9cc9a</span><span class="cm"><span class="rdct">████████████████████████████████████████████</span></span></div></div></details></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p><span class="rdct">█████████████████████████████████████</span></p>
+<p>This month&#x27;s work focused on polishing the output template for pipeline blueprints: standardizing the document header to a consistent &quot;Pipeline Blueprint for {Company}&quot; format with a subheader, then fixing a layout regression where the footer got clipped after that subheader was added. It was a tight, single-session pass (58 min, 23 tool calls) aimed at making generated blueprints look consistent and correctly formatted.</p>
+<ul>
+<li>Standardized the blueprint header format to `Pipeline Blueprint for {Company}` with an added subheader</li>
+<li>Fixed footer clipping caused by the new subheader</li>
+<li>Delivered both changes in one focused session (2 commits, 58 minutes active time)</li>
+</ul></div></div></div></div></div><div class="project-card"><div class="card"><div class="pc-left"><div class="card-stripe"></div><div class="eyebrow">png</div><div class="pc-sessions">1</div><div class="pc-sessions-label">Sessions</div></div><div class="pc-middle"><div class="project-stats-row"><div class="ps"><div class="ps-v">3</div><div class="ps-k">Prompts</div></div><div class="ps"><div class="ps-v">40</div><div class="ps-k">Tools</div></div><div class="ps"><div class="ps-v">124m</div><div class="ps-k">Active</div></div><div class="ps"><div class="ps-v">0</div><div class="ps-k">Commits</div></div></div></div><div class="pc-right"><div class="ai-block"><div class="ai-label">Summary</div><div class="ai-text"><p>Since there are no commit messages for this period, I don&#x27;t have specifics on <em>what</em> was built — only the activity shape of the session.</p>
+<p><strong>Summary:</strong> A single extended session (124 minutes active) was spent on the png project, involving 40 tool calls across 3 prompts — indicating substantial hands-on work, though nothing was committed to git during this window. This suggests exploratory or in-progress development that hasn&#x27;t yet reached a committable checkpoint.</p>
+<p><strong>Achievements:</strong></p>
+<ul>
+<li>Sustained a long, tool-heavy working session (40 tool calls) in a single sitting, suggesting iterative, hands-on work rather than a quick fix</li>
+<li>Covered notable ground in just 3 prompts, implying each prompt drove a substantial chunk of autonomous work</li>
+<li>No commits landed yet — work likely remains local/uncommitted or was investigative in nature</li>
+</ul>
+<p>Note: I couldn&#x27;t find more detail on the actual content of the work (no commit messages or other context were provided) — let me know if you&#x27;d like me to pull more from git history or session logs for a fuller entry.</p></div></div></div></div></div></div></div>
+
+  <div class="section">
+    <div class="section-label">Commits — 319 total, showing 15</div>
+    <div class="card">
+      <div class="commit-full-list"><div class="commit-full-item"><span class="commit-full-hash">fe379008</span><span class="commit-full-msg">Standardize header to &#x27;Pipeline Blueprint for {Company}&#x27; + add subheader</span><span class="commit-project-tag"><span class="rdct">██████</span>-sampler</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">05a9cc9a</span><span class="commit-full-msg">Fix footer clipping after subheader addition</span><span class="commit-project-tag"><span class="rdct">██████</span>-sampler</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">aadc9750</span><span class="commit-full-msg">Add V1 design spec for AI-Native RevOps Work Brain</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">31288295</span><span class="commit-full-msg">Stop tracking local Claude Code settings</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">f5cf7f4d</span><span class="commit-full-msg">Add Phase 1 implementation plan (foundation &amp; schema)</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">b160b746</span><span class="commit-full-msg">chore: scaffold Next.js app (TS, Tailwind, app router)</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">57762ae9</span><span class="commit-full-msg">chore: add Vitest test harness</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">1a42d646</span><span class="commit-full-msg">feat: add fail-fast environment config module</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">96291a54</span><span class="commit-full-msg">feat: add server-side Supabase service <span class="rdct">██████</span></span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">3d8ff4ce</span><span class="commit-full-msg">chore: initialize local Supabase project</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">93d71baf</span><span class="commit-full-msg">feat(db): enable pgvector extension</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">d4170e2a</span><span class="commit-full-msg">feat(db): add contexts table</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">dc18823d</span><span class="commit-full-msg">feat(db): add sources table</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">a8f35a0e</span><span class="commit-full-msg">feat(db): add documents table with idempotency constraint</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-full-item"><span class="commit-full-hash">149a43b0</span><span class="commit-full-msg">feat(db): add knowledge_objects table with hybrid-search indexes</span><span class="commit-project-tag">ai-native-work-brain</span></div>
+<div class="commit-more">… and 304 more commits not shown</div></div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <span>devlog <span class="slash">//</span> month ending 2026-07-03</span>
+    <span>
+      829 sessions
+      <span class="slash">·</span> 23 projects
+      <span class="slash">·</span> 319 commits
+    </span>
+  </footer>
+
+</div>
+</body>
+</html>
