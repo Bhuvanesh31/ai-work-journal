@@ -92,6 +92,16 @@ python -m pytest devlog/tests/ -v
 
 ---
 
+## What's next
+
+- **`devlog open`** — open today's HTML report in the browser (`xdg-open`)
+- **Multi-repo git ingestion** — scan all project roots instead of just the current repo
+- **Fix Codex project/cwd capture** — Codex events currently log `project: null`; patch once the log format exposes the working directory
+- **`devlog digest --week`** — plain-text or HTML email digest ready to paste/send
+- **Dashboard mode** — persistent local HTML page that auto-refreshes from the store
+
+---
+
 ## License
 
 MIT
