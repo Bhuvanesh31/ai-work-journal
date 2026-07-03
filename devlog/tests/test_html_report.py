@@ -91,15 +91,21 @@ class HtmlReportTest(unittest.TestCase):
         self.assertIn("Sessions", h)
         self.assertIn("Prompts", h)
 
-    def test_html_detailed_project_stats_are_scoped(self):
+    def test_html_detailed_projects_sorted_by_sessions_descending(self):
+        # seed a second session for proj-beta so it has more sessions than proj-alpha
+        conn = store.connect(self.paths)
+        store.append_events(self.paths, conn, [
+            _session("s3", "2026-06-17", "proj-beta", 1, {"Read": 1}, 5),
+        ])
+        conn.close()
         stats, evs = self._stats_and_evs()
         h = html_report.render_html(stats, "2026-06-17", evs, detailed=True)
-        # proj-alpha has Bash:3 in its tool breakdown; proj-beta has Edit:1
-        # both commits should appear under their respective projects
-        alpha_pos = h.index("proj-alpha")
-        beta_pos = h.index("proj-beta")
-        # aaaa1111 commit belongs to alpha, bbbb2222 to beta
-        self.assertLess(h.index("aaaa1111"), beta_pos)
+        # proj-beta (2 sessions) must appear before proj-alpha (1 session)
+        self.assertLess(h.index("proj-beta"), h.index("proj-alpha"))
+        # commit hashes must NOT appear inside the project cards div (only in global commits)
+        grid_start = h.index('class="projects-grid"')
+        grid_end = h.index("</div></div>", grid_start)
+        self.assertNotIn("aaaa1111", h[grid_start:grid_end])
 
     def test_html_ai_summary_uses_injected_engine(self):
         stats, evs = self._stats_and_evs()

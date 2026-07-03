@@ -369,20 +369,18 @@ def _render_project_card(project: str, proj_stats: dict, label: str,
     tool_use = proj_stats["tool_use"]
     duration = proj_stats["duration_min"]
 
-    commit_html = _render_short_commits(commits, _MAX_COMMITS_PROJECT)
-
     ai_html = ""
     if engine_fn is not None:
         text = engine_fn(_report.build_project_ai_prompt(project, proj_stats, label))
         if text:
             ai_html = (
                 f'<div class="ai-block">'
-                f'<div class="ai-label">AI Explanation</div>'
+                f'<div class="ai-label">Summary</div>'
                 f'<div class="ai-text">{_e(text.strip())}</div>'
                 f'</div>'
             )
         else:
-            ai_html = '<div class="ai-block ai-unavail">AI explanation unavailable</div>'
+            ai_html = '<div class="ai-block ai-unavail">AI summary unavailable</div>'
 
     return (
         f'<div class="project-card">'
@@ -396,7 +394,6 @@ def _render_project_card(project: str, proj_stats: dict, label: str,
         f'<div class="ps"><div class="ps-v">{duration}</div><div class="ps-k">Min</div></div>'
         f'<div class="ps"><div class="ps-v">{len(commits)}</div><div class="ps-k">Commits</div></div>'
         f'</div>'
-        f'<div class="commit-list">{commit_html}</div>'
         f'{ai_html}'
         f'</div>'
         f'</div>'
@@ -459,7 +456,7 @@ def render_html(stats: dict, label: str, evs: list,
     if detailed and projects:
         cards = [
             _render_project_card(p, _report.build_project_stats(evs, p), label, engine_fn)
-            for p in sorted(projects.keys())
+            for p, _ in sorted(projects.items(), key=lambda x: x[1], reverse=True)
         ]
         projects_html = (
             f'<div class="section">'
